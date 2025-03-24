@@ -1,0 +1,6 @@
+services:
+  - type: web
+    name: 7-a-side-app
+    env: python
+    buildCommand: ""
+    startCommand: gunicorn app:app
