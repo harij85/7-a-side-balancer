@@ -1,12 +1,10 @@
 from flask import Flask, render_template, redirect, url_for, request, session
-from flask_socketio import SocketIO
 from player import Player, PerformanceLog
 from data_manager import load_players, save_players, generate_unique_code
 from team_generator import generate_balanced_teams
 import os
 
 app = Flask(__name__)
-socketio = SocketIO(app)
 app.secret_key = '1234'
 
 @app.route('/')
@@ -117,10 +115,6 @@ def toggle_availability(player_id):
 
     if updated_player:
         save_players(players)
-        socketio.emit('availability_updated', {
-            'player_id': updated_player.id,
-            'available': updated_player.available
-        }, to='/')
 
     # Redirect based on role
     if is_admin:
@@ -356,4 +350,4 @@ def generate_teams():
 if __name__ == '__main__':
     if not os.path.exists('templates'):
         os.makedirs('templates')
-    socketio.run(app, debug=True)
+    app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5001)))
