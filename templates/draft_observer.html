@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Draft Observer - 7-A-Side</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+    rel="stylesheet"
+  >
+  <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+  <script>
+    const socket = io();
+    socket.on('availability_updated', () => location.reload());
+    socket.on('draft_started', () => location.reload());
+  </script>
+</head>
+<body>
+  <div class="container mt-4">
+    <h2 class="text-center mb-4">👀 Draft Observer View</h2>
+
+    <div class="alert alert-info text-center">
+      <strong>Current Turn:</strong> {{ turn.name }}
+    </div>
+
+    <div class="row mb-4">
+      <div class="col-md-6">
+        <h4>{{ captain1.name }}’s Team 🧢</h4>
+        <ul class="list-group">
+          {% for p in team1 %}
+            <li class="list-group-item">{{ p.name }} ({{ p.position.upper() }})</li>
+          {% endfor %}
+          {% if not team1 %}
+            <li class="list-group-item text-muted">No picks yet</li>
+          {% endif %}
+        </ul>
+      </div>
+
+      <div class="col-md-6">
+        <h4>{{ captain2.name }}’s Team 🧢</h4>
+        <ul class="list-group">
+          {% for p in team2 %}
+            <li class="list-group-item">{{ p.name }} ({{ p.position.upper() }})</li>
+          {% endfor %}
+          {% if not team2 %}
+            <li class="list-group-item text-muted">No picks yet</li>
+          {% endif %}
+        </ul>
+      </div>
+    </div>
+
+    <h4>Remaining Players in Draft Pool:</h4>
+    <ul class="list-group">
+      {% for player in remaining %}
+        <li class="list-group-item d-flex justify-content-between">
+          <div>
+            <strong>{{ player.name }}</strong> ({{ player.position.upper() }})
+          </div>
+          <span class="badge bg-secondary">Awaiting Pick</span>
+        </li>
+      {% endfor %}
+      {% if not remaining %}
+        <li class="list-group-item text-muted">All players have been drafted.</li>
+      {% endif %}
+    </ul>
+
+    <div class="text-center mt-4">
+      <a href="/" class="btn btn-outline-dark">⬅ Back to Admin Dashboard</a>
+    </div>
+  </div>
+</body>
+</html>

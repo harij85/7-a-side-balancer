@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Captain Draft - 7-A-Side</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+    rel="stylesheet"
+  >
+</head>
+<body>
+  <div class="container mt-4">
+
+    <h2 class="text-center mb-4">⚽ 7-A-Side Draft Room</h2>
+
+    <div class="alert {{ 'alert-success' if is_my_turn else 'alert-secondary' }} text-center">
+      {% if is_my_turn %}
+        🟢 It's your turn to pick, <strong>{{ this_captain.name }}</strong>!
+      {% else %}
+        ⏳ Waiting for <strong>{{ turn.name }}</strong> to pick...
+      {% endif %}
+    </div>
+
+    <div class="row mb-4">
+      <div class="col-md-6">
+        <h4>{{ captain1.name }}’s Team 🧢</h4>
+        <ul class="list-group">
+          {% for p in team1 %}
+            <li class="list-group-item">{{ p.name }} ({{ p.position.upper() }})</li>
+          {% endfor %}
+          {% if not team1 %}
+            <li class="list-group-item text-muted">No picks yet</li>
+          {% endif %}
+        </ul>
+      </div>
+
+      <div class="col-md-6">
+        <h4>{{ captain2.name }}’s Team 🧢</h4>
+        <ul class="list-group">
+          {% for p in team2 %}
+            <li class="list-group-item">{{ p.name }} ({{ p.position.upper() }})</li>
+          {% endfor %}
+          {% if not team2 %}
+            <li class="list-group-item text-muted">No picks yet</li>
+          {% endif %}
+        </ul>
+      </div>
+    </div>
+
+    <h4>Available Players to Pick:</h4>
+    <ul class="list-group">
+      {% for player in remaining %}
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+          <div>
+            <strong>{{ player.name }}</strong> ({{ player.position.upper() }})
+          </div>
+          {% if is_my_turn %}
+            <form method="POST" action="/draft/pick/{{ player.id }}" class="m-0">
+              <input type="hidden" name="captain_id" value="{{ captain_id }}">
+              <button class="btn btn-sm btn-primary">Pick</button>
+            </form>
+          {% else %}
+            <span class="badge bg-secondary">Waiting</span>
+          {% endif %}
+        </li>
+      {% endfor %}
+      {% if not remaining %}
+        <li class="list-group-item text-muted">All players have been drafted.</li>
+      {% endif %}
+    </ul>
+
+    <div class="text-center mt-4">
+      <a href="/" class="btn btn-outline-secondary">Return to Dashboard</a>
+    </div>
+
+  </div>
+</body>
+</html>

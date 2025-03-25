@@ -1,10 +1,35 @@
 [
     {
-        "id": "98fd183c-9bea-481e-a9a4-5233e68e2042",
-        "name": "Hari",
+        "id": "4640d4e2-5e5d-417f-b201-2e68d1553a2e",
+        "name": "Harish",
         "position": "DEF",
-        "skill_rating": 5.0,
+        "skill_rating": 7.76,
         "available": false,
-        "match_history": []
+        "role": "player",
+        "access_code": "ef4232",
+        "is_captain": false,
+        "match_history": [
+            {
+                "goals": 5,
+                "assists": 5,
+                "tackles": 5,
+                "saves": 4,
+                "rating": 10.0
+            },
+            {
+                "goals": 3,
+                "assists": 3,
+                "tackles": 3,
+                "saves": 3,
+                "rating": 9.75
+            },
+            {
+                "goals": 0,
+                "assists": 0,
+                "tackles": 2,
+                "saves": 1,
+                "rating": 1.75
+            }
+        ]
     }
 ]

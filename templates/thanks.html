@@ -2,18 +2,42 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <title>Thanks!</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Thanks {{ player.name }}!</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+    rel="stylesheet"
+  >
 </head>
 <body>
-  <div class="container mt-5 text-center">
-    <h2>Thanks, {{ player.name }}! 🙌</h2>
-    <p>Your match performance has been logged successfully.</p>
-    <p>Updated Skill Rating: <strong>{{ player.skill_rating }}</strong></p>
+  <div class="container text-center mt-5">
+    <h1 class="mb-4">🙌 Stats Submitted!</h1>
+    
+    <p class="lead">Your updated skill rating is:</p>
+    <h2 class="display-4">
+      {{ current_rating }}
+      {% if rating_diff > 0 %}
+        <span class="text-success">↑ +{{ rating_diff }}</span>
+      {% elif rating_diff < 0 %}
+        <span class="text-danger">↓ {{ rating_diff }}</span>
+      {% else %}
+        <span class="text-muted">No change</span>
+      {% endif %}
+    </h2>
 
-    <a href="/" class="btn btn-secondary mt-3">Back to Dashboard</a>
-    <a href="/player/{{ player.id }}" class="btn btn-outline-primary mt-3">Log Another Match</a>
+    <p class="mt-4">
+      {% if rating_diff > 0 %}
+        🔥 Nice work! Keep that momentum going.
+      {% elif rating_diff < 0 %}
+        💪 Still solid — bounce back next time!
+      {% else %}
+        🎯 Steady performer — great consistency.
+      {% endif %}
+    </p>
+
+    <a href="{{ url_for('player_page', player_id=player.id) }}" class="btn btn-primary mt-3">
+      🔙 Back to My Player Portal
+    </a>
   </div>
 </body>
 </html>
