@@ -11,7 +11,7 @@
 </head>
 <body>
     <div class="container mt-4">
-        <h1 class="text-center mb-4">7-A-Side Player Dashboard</h1>
+        <h1 class="text-center mb-4"></h1>
         <div class="d-grid gap-2 mb-3">
         <!-- index.html (Admin view after assigning 2 captains) -->
 {% if is_admin and players|selectattr('is_captain')|list|length == 2 %}
@@ -30,6 +30,7 @@
     {% endfor %}
 </div>
 {% endif %}
+
 
 
         {% if is_admin %}

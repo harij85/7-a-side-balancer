@@ -4,40 +4,91 @@
 <head>
   <meta charset="UTF-8">
   <title>Player Portal</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
-  <div class="container mt-4">
-    <h2 class="mb-3 text-center">Welcome, {{ player.name }}</h2>
-    <p><strong>My Access Code:</strong> {{ player.access_code }}</p>
 
-<form action="/regenerate_code/{{ player.id }}" method="POST" onsubmit="return confirm('Generate a new code? Your old one will stop working.')">
-    <button class="btn btn-sm btn-outline-danger">Regenerate My Code</button>
-</form>
-
-    <p class="text-center">Position: <strong>{{ player.position }}</strong> | Skill Rating: <strong>{{ player.skill_rating }}</strong></p>
-
-    {% if session.player_id == player.id or session.is_admin %}
-    <form action="/toggle_availability/{{ player.id }}" method="POST" class="text-center mb-3">
-      <button type="submit" class="btn btn-{{ 'success' if player.available else 'danger' }}">
-        {{ 'Available ✅' if player.available else 'Unavailable ❌' }}
+  <!-- 🔔 Navbar with Notifications -->
+  <nav class="navbar navbar-light bg-light px-3 justify-content-between">
+    <!-- 🍔 Hamburger menu (left) -->
+    <div class="dropdown">
+      <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="menuDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+        ☰ Menu
       </button>
-    </form>
-
-    <div class="d-grid gap-2 col-6 mx-auto mb-3">
-      <a href="/log_performance/{{ player.id }}" class="btn btn-outline-primary">Log Match Performance</a>
+      <ul class="dropdown-menu" aria-labelledby="menuDropdown">
+        <li>
+          <form action="{{ url_for('admin_logout') }}" method="GET" class="px-3">
+            <button class="dropdown-item">🚪 Logout</button>
+          </form>
+        </li>
+      </ul>
     </div>
+  
+    <!-- 🏟️ Title -->
+    <span class="navbar-brand mb-0 h4">7 Player Portal</span>
+  
+    <!-- 🔔 Notifications (right) -->
+    <div class="dropdown">
+      <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="notificationDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+        🔔 Notifications
+        {% if player.notifications %}
+          <span class="badge bg-danger">{{ player.notifications | length }}</span>
+        {% endif %}
+      </button>
+      <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="notificationDropdown" style="max-height: 300px; overflow-y: auto; width: 350px;">
+        {% if player.notifications %}
+          {% for note in player.notifications %}
+            <li class="dropdown-item">
+              <div><strong>⭐ {{ note.rating }}/10</strong> from <em>{{ note.from_name }}</em></div>
+              <div class="small text-muted">🗓️ {{ note.timestamp }}</div>
+              {% if note.comment %}
+                <div class="mt-1">📝 "{{ note.comment }}"</div>
+              {% endif %}
+            </li>
+            <li><hr class="dropdown-divider"></li>
+          {% endfor %}
+          <li class="text-center">
+            <form action="{{ url_for('clear_notifications', player_id=player.id) }}" method="POST">
+              <button class="btn btn-sm btn-outline-danger">Clear Notifications</button>
+            </form>
+          </li>
+        {% else %}
+          <li class="dropdown-item text-muted">No notifications yet</li>
+        {% endif %}
+      </ul>
+    </div>
+  </nav>
+  
+
+  <!-- 👤 Player Stats Section -->
+  <div class="container mt-4">
+    <h2>{{ player.name }}</h2>
+    <p><strong>Position:</strong> {{ player.position }}</p>
+    <p><strong>Skill Rating:</strong> {{ player.skill_rating }}</p>
+    <p><strong>Access Code:</strong> {{ player.access_code }}</p>
+
+    <!-- 📈 Match Ratings -->
+    <h5 class="mt-4">Recent Match Ratings</h5>
+    {% if ratings %}
+      <ul class="list-group">
+        {% for r in ratings %}
+          <li class="list-group-item"> {{ r }}/10</li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p class="text-muted">No match ratings yet.</p>
     {% endif %}
 
-    <div class="text-center">
-      <a href="/" class="btn btn-secondary btn-sm">Back to Dashboard</a>
+    <!-- ⚙️ Portal Actions -->
+    <div class="mt-4 d-grid gap-2">
+      <a href="{{ url_for('log_performance', player_id=player.id) }}" class="btn btn-success">Log New Performance</a>
+      <a href="{{ url_for('view_players') }}" class="btn btn-primary">View All Players</a>
+      <form action="{{ url_for('regenerate_code', player_id=player.id) }}" method="POST">
+        <button class="btn btn-outline-warning">Regenerate Access Code</button>
+      </form>
     </div>
   </div>
-  <div class="my-4">
-    <canvas id="ratingChart"></canvas>
-  </div>
-  
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script>
     const ratings = {{ ratings|tojson }};
@@ -68,6 +119,8 @@
       }
     });
   </script>
+  <!-- 📜 Bootstrap JS for dropdown -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   
 </body>
 </html>
