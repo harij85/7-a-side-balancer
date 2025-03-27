@@ -23,6 +23,7 @@
         <small class="text-muted">Match ID: {{ recent_log.match_id }}</small>
       </div>
     </div>
+    {% if not is_admin %}
 
     <form method="POST">
       <div class="mb-3">
@@ -36,6 +37,7 @@
       <button type="submit" class="btn btn-success">Submit Rating</button>
       <a href="{{ url_for('player_page', player_id=viewer_id) }}" class="btn btn-secondary ms-2">Back</a>
     </form>
+    {% endif %}
     {% else %}
       <div class="alert alert-info">No match data available for {{ target.name }} yet.</div>
     {% endif %}

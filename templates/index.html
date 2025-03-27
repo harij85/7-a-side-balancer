@@ -110,10 +110,11 @@
                     <div class="text-end">
                         {% if is_admin %}
                         <form action="/toggle_availability/{{ player.id }}" method="POST" class="d-inline">
-                            <button type="submit" class="btn btn-sm btn-outline-warning mb-1">Toggle</button>
+                            <button type="submit" class="btn btn-sm btn-outline-warning mb-1">Toggle Availability</button>
                         </form>
                         
-                        <a href="/log_performance/{{ player.id }}" class="btn btn-sm btn-outline-info mb-1">Log Match</a>
+                        <a href="{{ url_for('player_profile', target_id=player.id) }}" class="btn btn-sm btn-outline-info mb-1">View Stats</a>
+
                         
                         <form action="/remove_player/{{ player.id }}" method="POST" class="d-inline">
                             <button type="submit" class="btn btn-sm btn-outline-danger">Remove</button>

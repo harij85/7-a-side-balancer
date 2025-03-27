@@ -1,0 +1,49 @@
+<!-- templates/player_inbox.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Inbox - {{ player.name }}</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="container mt-4">
+  <h2 class="mb-4">📥 Inbox for {{ player.name }}</h2>
+
+  {% if inbox and inbox|length > 0 %}
+    <ul class="list-group">
+      {% for note in inbox|reverse %}
+        <li class="list-group-item">
+          
+          {% if note.type == "rating_received" %}
+            <div><strong>⭐ {{ note.rating }}/10</strong> from <em>{{ note.from }}</em></div>
+            {% if note.comment %}
+              <p class="mt-2 mb-1">💬 "{{ note.comment }}"</p>
+            {% endif %}
+
+          {% elif note.type == "captain_message" %}
+            <p class="mb-1">📢 {{ note.message }}</p>
+
+          {% elif note.message %}
+            <p class="mb-1">{{ note.message }}</p>
+
+          {% else %}
+            <p class="text-muted">📌 Unknown message</p>
+          {% endif %}
+
+          {% if note.timestamp %}
+            <div class="small text-muted mt-2">🗓️ {{ note.timestamp }}</div>
+          {% endif %}
+          
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <div class="alert alert-info">You have no messages yet.</div>
+  {% endif %}
+
+  <div class="mt-4">
+    <a href="{{ url_for('player_page', player_id=player.id) }}" class="btn btn-secondary">⬅️ Back to Portal</a>
+  </div>
+</body>
+</html>

@@ -1,0 +1,27 @@
+<!-- templates/message_team.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Message Your Team</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+</head>
+<body class="container mt-5">
+  <h2 class="mb-4">📢 Message Your Team</h2>
+  <form method="POST">
+    <div class="mb-3">
+      <label class="form-label">Your Message</label>
+      <textarea name="message" rows="4" class="form-control" placeholder="Type your message here..." required></textarea>
+    </div>
+    <button type="submit" class="btn btn-primary w-100">Send Message</button>
+  </form>
+
+  <hr class="my-4">
+  <h5>🧑‍🤝‍🧑 Teammates</h5>
+  <ul class="list-group">
+    {% for mate in teammates %}
+      <li class="list-group-item">{{ mate.name }} ({{ mate.position }})</li>
+    {% endfor %}
+  </ul>
+</body>
+</html>

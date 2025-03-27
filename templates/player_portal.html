@@ -28,45 +28,92 @@
     <!-- 🏟️ Title -->
     <span class="navbar-brand mb-0 h4">7 Player Portal</span>
   
-    <!-- 🔔 Notifications (right) -->
-    <div class="dropdown">
-      <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="notificationDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-        🔔 Notifications
-        {% if player.notifications %}
-          <span class="badge bg-danger">{{ player.notifications | length }}</span>
-        {% endif %}
-      </button>
-      <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="notificationDropdown" style="max-height: 300px; overflow-y: auto; width: 350px;">
-        {% if player.notifications %}
-          {% for note in player.notifications %}
-            <li class="dropdown-item">
-              <div><strong>⭐ {{ note.rating }}/10</strong> from <em>{{ note.from_name }}</em></div>
-              <div class="small text-muted">🗓️ {{ note.timestamp }}</div>
-              {% if note.comment %}
-                <div class="mt-1">📝 "{{ note.comment }}"</div>
-              {% endif %}
-            </li>
-            <li><hr class="dropdown-divider"></li>
-          {% endfor %}
-          <li class="text-center">
-            <form action="{{ url_for('clear_notifications', player_id=player.id) }}" method="POST">
-              <button class="btn btn-sm btn-outline-danger">Clear Notifications</button>
-            </form>
-          </li>
+   <!-- 📥 Inbox + 🔔 Notifications (right) -->
+<div class="d-flex align-items-center gap-2">
+
+  <!-- 📥 Inbox Button -->
+  <a href="{{ url_for('player_inbox', player_id=player.id) }}" class="btn btn-outline-info">
+    📥 Inbox
+  </a>
+
+  <!-- 🔔 Notification Dropdown -->
+  <div class="dropdown">
+    <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="notificationDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+      🔔 Notifications
+      {% if player.notifications %}
+        <span class="badge bg-danger">{{ player.notifications | length }}</span>
+      {% endif %}
+    </button>
+    <ul class="dropdown-menu dropdown-menu-end text-wrap p-2"
+    aria-labelledby="notificationDropdown"
+    style="max-height: 300px; overflow-y: auto; width: 100%; max-width: 350px;">
+
+
+      {% if player.notifications %}
+      {% for note in player.notifications %}
+      <li class="dropdown-item" style="white-space: normal; word-break: break-word;">
+    
+        {% if note.type == "rating_received" %}
+          <div><strong>⭐ {{ note.rating }}/10</strong> from <em>{{ note.from }}</em></div>
+          {% if note.comment %}
+            <div class="mt-1 text-muted">📝 "{{ note.comment | truncate(60, True) }}"</div>
+          {% endif %}
+        {% elif note.message %}
+          <div class="text-muted">{{ note.message | truncate(60, True) }}</div>
         {% else %}
-          <li class="dropdown-item text-muted">No notifications yet</li>
+          <div class="text-muted">📌 Unknown notification</div>
         {% endif %}
-      </ul>
-    </div>
+    
+        {% if note.timestamp %}
+          <div class="small text-muted mt-1">🗓️ {{ note.timestamp }}</div>
+        {% endif %}
+    
+        {% if note.message and note.message | length > 60 %}
+          <a href="{{ url_for('player_inbox', player_id=player.id) }}" class="small text-decoration-underline">📥 View in Inbox</a>
+        {% endif %}
+    
+      </li>
+      <li><hr class="dropdown-divider"></li>
+    {% endfor %}
+    
+        <li class="text-center">
+          <form action="{{ url_for('clear_notifications', player_id=player.id) }}" method="POST">
+            <button class="btn btn-sm btn-outline-danger">Clear Notifications</button>
+          </form>
+        </li>
+      {% else %}
+        <li class="dropdown-item text-muted">No notifications yet</li>
+      {% endif %}
+    </ul>
+  </div>
+</div>
+
   </nav>
   
 
   <!-- 👤 Player Stats Section -->
   <div class="container mt-4">
     <h2>{{ player.name }}</h2>
+
+    {% if is_admin or session['player_id'] == player.id %}
+  <form action="{{ url_for('toggle_availability', player_id=player.id) }}" method="POST" class="mb-3">
+    <button type="submit" class="btn btn-outline-warning">
+      {% if player.available %}
+        Mark as Unavailable ❌
+      {% else %}
+        Mark as Available ✅
+      {% endif %}
+    </button>
+  </form>
+{% endif %}
+
+
     <p><strong>Position:</strong> {{ player.position }}</p>
     <p><strong>Skill Rating:</strong> {{ player.skill_rating }}</p>
     <p><strong>Access Code:</strong> {{ player.access_code }}</p>
+    <form action="{{ url_for('regenerate_code', player_id=player.id) }}" method="POST">
+      <button class="btn btn-outline-warning">Regenerate Access Code</button>
+    </form>
 
     <!-- 📈 Match Ratings -->
     <h5 class="mt-4">Recent Match Ratings</h5>
@@ -84,10 +131,59 @@
     <div class="mt-4 d-grid gap-2">
       <a href="{{ url_for('log_performance', player_id=player.id) }}" class="btn btn-success">Log New Performance</a>
       <a href="{{ url_for('view_players') }}" class="btn btn-primary">View All Players</a>
-      <form action="{{ url_for('regenerate_code', player_id=player.id) }}" method="POST">
-        <button class="btn btn-outline-warning">Regenerate Access Code</button>
-      </form>
+      
     </div>
+    {% if show_draft_panel %}
+  <hr class="my-4">
+  <h4>🧢 Captain Draft Panel</h4>
+
+  {% if draft_context.is_my_turn %}
+    <p class="text-success">It's your turn to pick!</p>
+    <form action="{{ url_for('draft_pick', player_id='') }}" method="POST" id="draftForm">
+      <input type="hidden" name="captain_id" value="{{ draft_context.captain_id }}">
+      <div class="mb-3">
+        <label for="playerSelect" class="form-label">Select a player:</label>
+        <select name="player_id" id="playerSelect" class="form-select" required>
+          <option disabled selected value="">-- Choose a player --</option>
+          {% for player in draft_context.remaining %}
+            <option value="{{ player.id }}">{{ player.name }} ({{ player.position }})</option>
+          {% endfor %}
+        </select>
+      </div>
+      <button type="submit" class="btn btn-primary">Pick Player</button>
+    </form>
+
+    <script>
+      const form = document.getElementById('draftForm');
+      form.addEventListener('submit', function(e) {
+        const selectedId = document.getElementById('playerSelect').value;
+        form.action = `/draft/pick/${selectedId}`;
+      });
+    </script>
+  {% else %}
+    <p class="text-muted">Waiting for the other captain to pick...</p>
+  {% endif %}
+
+  <div class="row mt-3">
+    <div class="col-md-6">
+      <h5>{{ draft_context.captain1.name }}'s Team</h5>
+      <ul class="list-group">
+        {% for player in draft_context.team1 %}
+          <li class="list-group-item">{{ player.name }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+    <div class="col-md-6">
+      <h5>{{ draft_context.captain2.name }}'s Team</h5>
+      <ul class="list-group">
+        {% for player in draft_context.team2 %}
+          <li class="list-group-item">{{ player.name }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+{% endif %}
+
   </div>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script>

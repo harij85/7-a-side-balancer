@@ -55,6 +55,7 @@ class Player:
         self.access_code = access_code or str(uuid.uuid4())[:6]
         self.ratings_received = ratings_received or []
         self.notifications = notifications or []
+        self.inbox = []
         self.is_captain = is_captain
         self.match_history = match_history or []
 
@@ -87,13 +88,15 @@ class Player:
             'is_captain': self.is_captain,
             'match_history': [p.to_dict() for p in self.match_history],
             'ratings_received': self.ratings_received,
-            'notifications': getattr(self, 'notifications', []) 
+            'notifications': getattr(self, 'notifications', []),
+            "inbox": self.inbox 
         }
 
     @staticmethod
     def from_dict(data):
         match_history = [PerformanceLog.from_dict(p) for p in data.get('match_history', [])]
-        return Player(
+        
+        player = Player(
             name=data['name'],
             position=data['position'],
             skill_rating=data['skill_rating'],
@@ -105,4 +108,9 @@ class Player:
             match_history=match_history,
             ratings_received=data.get('ratings_received', []),
             notifications=data.get('notifications', [])
+            
+            
         )
+        
+        player.inbox = data.get("inbox", [])
+        return player

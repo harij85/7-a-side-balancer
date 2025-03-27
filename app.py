@@ -2,7 +2,7 @@
 from datetime import datetime
 from flask import Flask, render_template, redirect, url_for, request, session
 from player import Player, PerformanceLog
-from data_manager import load_players, save_players, generate_unique_code
+from data_manager import load_players, save_players, generate_unique_code, load_draft_state, save_draft_state
 from team_generator import generate_balanced_teams
 import os
 
@@ -14,6 +14,11 @@ app.secret_key = '1234'
 
 @app.route('/')
 def index():
+    # Redirect players who are logged in
+    #if session.get('player_id') and not session.get('is_admin'):
+     #   return redirect(url_for('player_page', player_id=session['player_id']))
+    if session.get('is_admin') and session.get('player_id'):
+        session.pop('player_id') 
     players = load_players()
     is_admin = session.get('is_admin', False)
     #config = load_config()
@@ -28,6 +33,7 @@ def admin_login():
         password = request.form.get('password')
         if password == 'admin123':
             session['is_admin'] = True
+            session.pop('player_id', None)
             return redirect(url_for('index'))
         else:
             return render_template('admin_login.html', error="Invalid password")
@@ -52,6 +58,8 @@ def player_login():
         player = next((p for p in players if p.name.strip().lower() == entered_name and p.access_code == entered_code), None)
         
         if player:
+            session['player_id'] = player.id  # ✅ Ensure we set the correct session
+            session.pop('is_admin', None)     # ✅ Clear admin session
             return redirect(url_for('player_page', player_id=player.id))
         return render_template('player_login.html', error='Invalid name or access code.')
     return render_template('player_login.html')
@@ -72,7 +80,13 @@ def add_player():
         existing_codes = {p.access_code for p in players}
         access_code = generate_unique_code(existing_codes)
         
-        player = Player(name=name, position=position, skill_rating=skill_rating)
+        player = Player(
+            name=name, 
+            position=position, 
+            skill_rating=skill_rating
+        )
+        player.inbox = []
+        
         player.access_code = access_code
         player.age = age
         
@@ -111,6 +125,14 @@ def assign_captain(player_id):
                 return "Only two captains can be assigned.", 400
             
             player.is_captain = not player.is_captain
+            if player.is_captain:
+                if not any("assigned as a captain" in note["message"] for note in player.notifications):
+                    message = ({
+                        "message": "You've been assigned as a captain! Go to your dashboard when the draft begins.",
+                        "timestamp": datetime.now().isoformat()
+                     })
+                    player.notifications.append(message)
+                    player.inbox.append(message)
             break
 
     save_players(players)
@@ -118,57 +140,7 @@ def assign_captain(player_id):
 
 #ADMIN ONLY start draft 
 
-@app.route('/draft/start', methods=['POST'])
-def start_draft():
-    if not session.get('is_admin'):
-        return "Unauthorized", 403
 
-    players = load_players()
-
-    # Get the 2 captains
-    captains = [p for p in players if p.is_captain]
-    if len(captains) != 2:
-        return "Exactly 2 captains must be assigned.", 400
-
-    # Sort by skill_rating
-    captains = sorted(captains, key=lambda p: p.skill_rating, reverse=True)
-    captain1, captain2 = captains
-
-    # Get available non-captain players
-    draft_pool = [p for p in players if p.available and not p.is_captain]
-
-    # Initialize draft state in session
-    session['draft_state'] = {
-        'captain1_id': captain1.id,
-        'captain2_id': captain2.id,
-        'team1': [],
-        'team2': [],
-        'remaining_ids': [p.id for p in draft_pool],
-        'turn': captain1.id  # highest-rated goes first
-    }
-
-    return redirect(url_for('draft_observer_view'))
-
-@app.route('/admin/ratings')
-def admin_rating():
-    if not session.get('is_admin'):
-        return "Unauthorized", 403
-    players = load_players()
-    all_ratings = []
-    for player in players:
-        for entry in players.ratings_received:
-            all_ratings.append({
-                'to': player.name,
-                'from': next((p.name for p in player if p.id == entry['from']), 'Unknown'),
-                'comment': entry['comment'],
-                'rating': entry['rating'],
-                'match_id': entry['match_id'],
-                'player_id': player.id,
-                'index': player.ratings_received.index(entry)
-                
-            })
-    
-    return render_template('admin_ratings.html', ratings=all_ratings)
 
 
 # --------------------------------------------
@@ -179,6 +151,8 @@ def admin_rating():
 def toggle_availability(player_id):
     players = load_players()
     user_id = session.get('player_id')
+    print("SESSION STATE →", session)
+
     is_admin = session.get('is_admin', False)
 
     updated_player = None
@@ -196,12 +170,13 @@ def toggle_availability(player_id):
         save_players(players)
 
     # Redirect based on role
-    if is_admin:
-        return redirect(url_for('index'))
-    elif user_id == player_id:
-        return redirect(url_for('player_page', player_id=player_id))
+    if user_id == player_id:
+        return redirect(url_for('player_page', player_id=player_id))  # ✅ Player stays on portal
+    elif is_admin:
+        return redirect(url_for('index'))  # ✅ Admin goes to dashboard
     else:
-        return "Unauthorized", 403
+        return redirect(request.referrer or url_for('index'))
+
     
 #ADMIN and PLAYER - LOG PERFORMANCE
     
@@ -271,13 +246,18 @@ def log_performance(player_id):
 @app.route('/player_profile/<target_id>', methods=['GET', 'POST'])
 def player_profile(target_id):
     players = load_players()
+    
     viewer_id = session.get('player_id')
-
     target_player = next((p for p in players if p.id == target_id), None)
+    is_admin = session.get('is_admin', False)
     viewer = next((p for p in players if p.id == viewer_id), None)
 
-    if not target_player or not viewer:
-        return "Unauthorized or player not found", 403
+    if not target_player:
+        return "Player not found", 403
+    
+    # Allow admin access without being a player
+    if not viewer and not is_admin:
+        return "Unauthorized", 403
 
     if target_id == viewer_id:
         return "You cannot rate yourself", 403
@@ -308,14 +288,17 @@ def player_profile(target_id):
         if not hasattr(target_player, 'notifications'):
             target_player.notifications = []
 
-        target_player.notifications.append({
+        message = {
             "type": "rating_received",
             "from": viewer.name,
             "rating": rating,
             "comment": comment,
             "match_id": match_id,
             "timestamp": datetime.now().isoformat()
-        })
+             }
+
+        target_player.notifications.append(message)
+        target_player.inbox.append(message)
 
         save_players(players)
 
@@ -371,7 +354,6 @@ def player_page(player_id):
     session['player_id'] = player_id
     
     
-    
     if request.method == 'POST':
         
         goals = int(request.form['goals'])
@@ -393,10 +375,122 @@ def player_page(player_id):
         player.update_performance(log)
         player.update_skill_rating()
         save_players(players)
+        
         return render_template('thanks.html', player=player)
     
+    # Check if this player is a captain and draft is ongoing
+    
+    
+    show_draft_panel = False
+    draft_context = {}
+    
+    draft_state = load_draft_state()
+    if draft_state and player.is_captain:
+        get_player = lambda pid: next((p for p in players if p.id == pid), None)
+        
+        if draft_state.get("complete"):
+           # Show team directly in portal instead of redirecting
+        
+        
+            draft_context = {
+                'captain_id': player.id,
+                'this_captain': player,
+                'is_my_turn': False,
+                'remaining': [],
+                'team1': [p for pid in draft_state['team1'] if (p := get_player(pid))],
+                'team2': [p for pid in draft_state['team2'] if (p := get_player(pid))],
+                'captain1': get_player(draft_state['captain1_id']),
+                'captain2': get_player(draft_state['captain2_id']),
+                }
+           
+        else:
+
+        
+            show_draft_panel = True
+            
+       
+            draft_context = {
+                'captain_id': player_id,
+                'this_captain': player,
+                'is_my_turn': draft_state['turn'] == player_id,
+                'remaining': [p for pid in draft_state['remaining_ids'] if (p := get_player(pid))],
+                'team1': [p for pid in draft_state['team1'] if (p := get_player(pid))],
+                'team2': [p for pid in draft_state['team2'] if (p := get_player(pid))],
+                'captain1': get_player(draft_state['captain1_id']),
+                'captain2': get_player(draft_state['captain2_id']),
+                }
+        
     ratings = [log.rating for log in player.match_history]
-    return render_template('player_portal.html', player=player, ratings=ratings)
+    return render_template(
+        'player_portal.html',
+        player=player,
+        ratings=ratings,
+        show_draft_panel=show_draft_panel,
+        draft_context=draft_context,
+        is_admin=session.get('is_admin', False)
+    )
+    
+    
+@app.route('/draft/start', methods=['POST'])
+def start_draft():
+    if not session.get('is_admin'):
+        return "Unauthorized", 403
+    
+    # Clear any previous draft state
+    session.pop('draft_state', None)
+
+    players = load_players()
+
+    # Get the 2 captains
+    captains = [p for p in players if p.is_captain]
+    if len(captains) != 2:
+        return "Exactly 2 captains must be assigned.", 400
+
+    # Sort by skill_rating
+    captains = sorted(captains, key=lambda p: p.skill_rating, reverse=True)
+    captain1, captain2 = captains
+
+    # Get available non-captain players
+    draft_pool = [p for p in players if p.available and not p.is_captain]
+
+    # Initialize draft state in session
+    state = ({
+        'captain1_id': captain1.id,
+        'captain2_id': captain2.id,
+        'team1': [],
+        'team2': [],
+        'remaining_ids': [p.id for p in draft_pool],
+        'turn': captain1.id  # highest-rated goes first
+    })
+    
+    save_draft_state(state)
+    session['draft_state'] = state
+
+    return redirect(url_for('draft_observer_view'))
+
+@app.route('/admin/ratings')
+def admin_rating():
+    if not session.get('is_admin'):
+        return "Unauthorized", 403
+    players = load_players()
+    all_ratings = []
+    for player in players:
+        for entry in player.ratings_received:
+            all_ratings.append({
+                'to': player.name,
+                'from': next((p.name for p in players if p.id == entry['from']), 'Unknown'),
+                'comment': entry['comment'],
+                'rating': entry['rating'],
+                'match_id': entry['match_id'],
+                'player_id': player.id,
+                'index': player.ratings_received.index(entry)
+                
+            })
+    
+    return render_template('admin_ratings.html', ratings=all_ratings)
+   
+    
+    
 
 #Players view 
 
@@ -425,16 +519,25 @@ def draft_observer_view():
     state = session.get('draft_state')
     if not state:
         return "Draft not started", 400
-
+    
     players = load_players()
-    get_player = lambda pid: next(p for p in players if p.id == pid)
+    
+    
+    get_player = lambda pid: next((p for p in players if p.id == pid), None)
+    
+    captain1 = get_player(state['captain1_id'])
+    captain2 = get_player(state['captain2_id'])
+    
+    if not captain1 or not captain2:
+        return "One or more captains are missing", 400
+    
 
     context = {
-        'captain1': get_player(state['captain1_id']),
-        'captain2': get_player(state['captain2_id']),
-        'team1': [get_player(pid) for pid in state['team1']],
-        'team2': [get_player(pid) for pid in state['team2']],
-        'remaining': [get_player(pid) for pid in state['remaining_ids']],
+        'captain1': captain1,
+        'captain2': captain2,
+        'team1': [p for pid in state['team1'] if (p := get_player(pid))],
+        'team2': [p for pid in state['team2'] if (p := get_player(pid))],
+        'remaining': [p for pid in state['remaining_ids'] if (p := get_player(pid))],
         'turn': get_player(state['turn']),
     }
 
@@ -469,7 +572,7 @@ def captain_draft_view(captain_id):
 
 @app.route('/draft/pick/<player_id>', methods=['POST'])
 def draft_pick(player_id):
-    state = session.get('draft_state')
+    state = load_draft_state()
     captain_id = request.form.get('captain_id')
     
     if not state or player_id not in state['remaining_ids']:
@@ -481,16 +584,62 @@ def draft_pick(player_id):
     # Assign to current captain's team
     if state['turn'] == state['captain1_id']:
         state['team1'].append(player_id)
-        next_turn = state['captain2_id']
+        next_turn = state.get('captain2_id')
     else:
         state['team2'].append(player_id)
-        next_turn = state['captain1_id']
+        next_turn = state.get('captain1_id')
 
     state['remaining_ids'].remove(player_id)
-    state['turn'] = next_turn
+    
+    # Check if draft is complete 
+    if not state['remaining_ids']:
+        # Draft complete update both captains' notifications
+        players = load_players()
+        complete_message = "Draft is complete."
+        for cap_id in [state['captain1_id'], state['captain2_id']]:
+            captain = next((p for p in players if p.id == cap_id), None)
+            if captain:
+                captain.notifications.append({
+                    "message": complete_message,
+                    "timestamp": datetime.now().isoformat()
+                })
+        save_players(players)
+        #Optionally, mark the draft state as complete
+        state['complete'] = True
+        state['turn'] = None
+    else:
+        #Set turn to next captain
+         state['turn'] = next_turn
+    
+    save_draft_state(state)
     session['draft_state'] = state
 
-    return redirect(url_for('captain_draft_view', captain_id=next_turn))
+    if state.get('complete'):
+        return redirect(url_for('draft_final_view', captain_id=captain_id))
+    else:
+        return redirect(url_for('player_page', player_id=captain_id))
+
+
+
+@app.route('/draft/final/<captain_id>')
+def draft_final_view(captain_id):
+    state = session.get('draft_state')
+    if not state or not state.get('complete') or captain_id not in [state['captain1_id'], state['captain2_id']]:
+        return "Draft is not complete or Unauthorized", 403
+    
+    players = load_players()
+    get_player = lambda pid: next(p for p in players if p.id == pid)
+    
+    context = {
+        'captain_id': captain_id,
+        'this_captain': get_player(captain_id),
+        'captain1': get_player(state['captain1_id']),
+        'captain2': get_player(state['captain2_id']),
+        'team1': [get_player(pid) for pid in state['team1']],
+        'team2': [get_player(pid) for pid in state['team2']],
+    }
+    
+    return render_template('final_draft.html', **context)
 
 
 #Team generator 
@@ -504,7 +653,48 @@ def generate_teams():
     return render_template('team_generator.html', team1=team1, team2=team2)
 
 
+@app.route('/message_team/<captain_id>', methods=['GET', 'POST'])
+def message_team(captain_id):
+    players = load_players()
+    captain = next((p for p in players if p.id == captain_id and p.is_captain), None)
+    
+    if not captain or session.get('player_id') != captain_id:
+        return "Unauthorized", 403
+    
+    draft = load_draft_state()
+    team_ids = draft['team1'] if draft['captain1_id'] == captain_id else draft['team2']
+    team_players = [p for p in players if p.id in team_ids]
+    
+    if request.method == 'POST':
+        message = request.form.get('message')
+        timestamp = datetime.now().isoformat()
+        
+        for teammate in team_players:
+            message = {
+                "message": f"Captain {captain.name} says: {message}",
+                "timestamp": timestamp
+            }
+            teammate.notifications.append(message)
+            teammate.inbox.append(message)
+            
+        save_players(players)
+        
+        return render_template('thanks.html', player=captain, message="Team notified successfully!", rating_diff=0)
+    
+    return render_template('message_team.html', captain=captain, teammates=team_players)
 
+@app.route('/inbox/<player_id>')
+def player_inbox(player_id):
+    players = load_players()
+    player = next((p for p in players if p.id == player_id), None)
+
+    if not player or session.get('player_id') != player_id:
+        return "Unauthorized", 403
+    
+    print("DEBUG: Inbox contains →", player.inbox)
+    print("DEBUG → inbox from file:", player.inbox)
+
+    return render_template('player_inbox.html', player=player, inbox=player.inbox)
 
 
 if __name__ == '__main__':

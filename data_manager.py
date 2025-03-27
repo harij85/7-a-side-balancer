@@ -5,6 +5,19 @@ from player import Player
 
 DATA_PATH = "data/players.json"
 CONFIG_FILE = 'config.json'
+DRAFT_FILE = 'draft_state.json'
+
+def load_draft_state():
+    if os.path.exists(DRAFT_FILE):
+        with open(DRAFT_FILE, 'r', encoding='utf-8') as f:
+         try:
+            return json.load(f)
+         except json.JSONDecodeError:
+            return None
+
+def save_draft_state(state):
+    with open(DRAFT_FILE, 'w', encoding='utf-8') as f:
+        json.dump(state, f, indent=2)
 
 def load_config():
     if not os.path.exists(CONFIG_FILE):
@@ -22,7 +35,13 @@ def load_players():
     
     with open(DATA_PATH, "r", encoding="utf-8") as f:
         data = json.load(f)
-        return [Player.from_dict(p) for p in data]
+        players = [Player.from_dict(p) for p in data]
+    
+        for player in players:
+            if not hasattr(player, 'inbox'):
+                player.inbox = []
+        return players
+
     
 def save_players(players):
     with open(DATA_PATH, "w", encoding="utf-8") as f:
