@@ -35,7 +35,7 @@
         <textarea name="comment" id="comment" class="form-control" rows="3"></textarea>
       </div>
       <button type="submit" class="btn btn-success">Submit Rating</button>
-      <a href="{{ url_for('player_page', player_id=viewer_id) }}" class="btn btn-secondary ms-2">Back</a>
+      <a href="{{ url_for('player_bp.player_page', player_id=viewer_id) }}" class="btn btn-secondary ms-2">Back</a>
     </form>
     {% endif %}
     {% else %}

@@ -21,7 +21,7 @@
         <input type="text" name="access_code" placeholder="Access Code" required>
       </div>
       <button type="submit" class="btn btn-primary w-100">Access My Page</button>
-      <a href="/" class="btn btn-secondary w-100 mt-2">Back to Dashboard</a>
+      <a href="{{ url_for('home_bp.index') }}" class="btn btn-secondary w-100 mt-2">Back to Dashboard</a> 
     </form>
   </div>
 </body>

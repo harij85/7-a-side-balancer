@@ -1,7 +1,7 @@
 import uuid
 import json 
 import os
-from player import Player
+from backend.models.player import Player
 
 DATA_PATH = "data/players.json"
 CONFIG_FILE = 'config.json'

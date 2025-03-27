@@ -1,130 +1,89 @@
 [
     {
-        "id": "cf47d3b5-d9e4-4038-8264-d935263c6010",
-        "name": "testPlayer1",
-        "position": "MID",
-        "skill_rating": 5.6,
+        "id": "998e886b-3954-4208-8ea2-432d070f3554",
+        "name": "Ted",
+        "position": "GK",
+        "skill_rating": 6.0,
         "available": true,
         "role": "player",
-        "access_code": "1dd299",
-        "is_captain": true,
+        "access_code": "0d015e",
+        "is_captain": false,
         "match_history": [
             {
                 "goals": 2,
-                "assists": 3,
-                "tackles": 2,
-                "saves": 1,
-                "rating": 6.5,
-                "match_id": "2025-03-27T01:42:14.269518"
+                "assists": 1,
+                "tackles": 4,
+                "saves": 3,
+                "rating": 7.5,
+                "match_id": "2025-03-27T19:49:34.397705"
             }
         ],
         "ratings_received": [
             {
-                "from": "c869e384-053b-40ba-a90d-c8fcce87d886",
-                "match_id": "2025-03-27T01:42:14.269518",
-                "rating": 6,
-                "comment": "Looking forward to the game"
+                "from": "8d12cb34-3131-450b-bde6-5f0015e5903d",
+                "match_id": "2025-03-27T19:49:34.397705",
+                "rating": 5,
+                "comment": "Nice"
             }
         ],
         "notifications": [
             {
-                "message": "You've been assigned as a captain! Go to your dashboard when the draft begins.",
-                "timestamp": "2025-03-27T01:49:54.927239"
+                "type": "rating_received",
+                "from": "p1",
+                "rating": 5,
+                "comment": "Nice",
+                "match_id": "2025-03-27T19:49:34.397705",
+                "timestamp": "2025-03-27T19:54:17.871408"
             }
         ],
         "inbox": [
             {
                 "type": "rating_received",
-                "from": "testPlayer2",
-                "rating": 6,
-                "comment": "Looking forward to the game",
-                "match_id": "2025-03-27T01:42:14.269518",
-                "timestamp": "2025-03-27T01:43:26.637485"
-            },
-            {
-                "message": "You've been assigned as a captain! Go to your dashboard when the draft begins.",
-                "timestamp": "2025-03-27T01:49:54.927239"
+                "from": "p1",
+                "rating": 5,
+                "comment": "Nice",
+                "match_id": "2025-03-27T19:49:34.397705",
+                "timestamp": "2025-03-27T19:54:17.871408"
             }
         ]
     },
     {
-        "id": "c869e384-053b-40ba-a90d-c8fcce87d886",
-        "name": "testPlayer2",
-        "position": "ATT",
-        "skill_rating": 7.0,
+        "id": "8d12cb34-3131-450b-bde6-5f0015e5903d",
+        "name": "p1",
+        "position": "GK",
+        "skill_rating": 6.9,
         "available": true,
         "role": "player",
-        "access_code": "cb70fd",
-        "is_captain": true,
+        "access_code": "dfe41e",
+        "is_captain": false,
         "match_history": [
             {
-                "goals": 6,
-                "assists": 3,
-                "tackles": 4,
-                "saves": 5,
-                "rating": 10.0,
-                "match_id": "2025-03-27T01:45:19.355392"
+                "goals": 4,
+                "assists": 2,
+                "tackles": 2,
+                "saves": 3,
+                "rating": 9.75,
+                "match_id": "2025-03-27T19:51:06.185834"
             }
         ],
         "ratings_received": [
             {
-                "from": "cf47d3b5-d9e4-4038-8264-d935263c6010",
-                "match_id": "2025-03-27T01:45:19.355392",
-                "rating": 6,
-                "comment": "Great game. Well played"
+                "from": "998e886b-3954-4208-8ea2-432d070f3554",
+                "match_id": "2025-03-27T19:51:06.185834",
+                "rating": 4,
+                "comment": "cool"
             }
         ],
-        "notifications": [
-            {
-                "message": "You've been assigned as a captain! Go to your dashboard when the draft begins.",
-                "timestamp": "2025-03-27T01:54:12.425902"
-            }
-        ],
+        "notifications": [],
         "inbox": [
             {
                 "type": "rating_received",
-                "from": "testPlayer1",
-                "rating": 6,
-                "comment": "Great game. Well played",
-                "match_id": "2025-03-27T01:45:19.355392",
-                "timestamp": "2025-03-27T01:45:50.890299"
-            },
-            {
-                "message": "You've been assigned as a captain! Go to your dashboard when the draft begins.",
-                "timestamp": "2025-03-27T01:49:56.005645"
-            },
-            {
-                "message": "You've been assigned as a captain! Go to your dashboard when the draft begins.",
-                "timestamp": "2025-03-27T01:54:12.425902"
+                "from": "Ted",
+                "rating": 4,
+                "comment": "cool",
+                "match_id": "2025-03-27T19:51:06.185834",
+                "timestamp": "2025-03-27T19:53:32.385217"
             }
         ]
-    },
-    {
-        "id": "332bbecf-386e-47bb-b5bb-36564f5704f7",
-        "name": "testPlayer3",
-        "position": "GK",
-        "skill_rating": 5.0,
-        "available": true,
-        "role": "player",
-        "access_code": "4c3699",
-        "is_captain": false,
-        "match_history": [],
-        "ratings_received": [],
-        "notifications": [],
-        "inbox": []
-    },
-    {
-        "id": "2c4a41d8-96fd-4326-b261-a037573915e0",
-        "name": "testPlayer4",
-        "position": "GK",
-        "skill_rating": 5.0,
-        "available": true,
-        "role": "player",
-        "access_code": "3cc10a",
-        "is_captain": false,
-        "match_history": [],
-        "ratings_received": [],
-        "notifications": [],
-        "inbox": []
     }
 ]

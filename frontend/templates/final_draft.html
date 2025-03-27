@@ -1,0 +1,52 @@
+<!-- templates/final_draft.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Draft Complete - Final Teams</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- ✅ Bootstrap CSS restored -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+
+  <div class="container mt-4">
+    <h2 class="text-center mb-4">Draft Complete</h2>
+    <p class="alert alert-info text-center">Your final team has been set.</p>
+
+    <div class="row">
+      <div class="col-md-6">
+        <h4>{{ captain1.name }}’s Team</h4>
+        <ul class="list-group">
+          {% for player in team1 %}
+            <li class="list-group-item">{{ player.name }} ({{ player.position.upper() }})</li>
+          {% endfor %}
+          {% if not team1 %}
+            <li class="list-group-item text-muted">No players selected.</li>
+          {% endif %}
+        </ul>
+      </div>
+
+      <div class="col-md-6">
+        <h4>{{ captain2.name }}’s Team</h4>
+        <ul class="list-group">
+          {% for player in team2 %}
+            <li class="list-group-item">{{ player.name }} ({{ player.position.upper() }})</li>
+          {% endfor %}
+          {% if not team2 %}
+            <li class="list-group-item text-muted">No players selected.</li>
+          {% endif %}
+        </ul>
+      </div>
+    </div>
+
+    <div class="text-center mt-4">
+      <a href="{{ url_for('home_bp.index') }}" class="btn btn-outline-dark">Return to Dashboard</a>
+    </div>
+  </div>
+
+  <!-- ✅ Bootstrap JS bundle (optional, for dropdowns/modals if needed) -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>All Players</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+    rel="stylesheet"
+  >
+</head>
+<body>
+  <div class="container mt-4">
+    <h2 class="mb-4 text-center">All Players</h2>
+
+    <!-- 🔍 Search & Filter Form -->
+    <form method="GET" class="row g-2 mb-4">
+      <div class="col-md-4">
+        <input type="text" name="search" class="form-control" placeholder="Search by name" value="{{ request.args.get('search', '') }}">
+      </div>
+      <div class="col-md-3">
+        <select name="position" class="form-select">
+          <option value="">All Positions</option>
+          <option value="GK" {% if request.args.get('position') == 'GK' %}selected{% endif %}>GK</option>
+          <option value="DEF" {% if request.args.get('position') == 'DEF' %}selected{% endif %}>DEF</option>
+          <option value="MID" {% if request.args.get('position') == 'MID' %}selected{% endif %}>MID</option>
+          <option value="FWD" {% if request.args.get('position') == 'FWD' %}selected{% endif %}>FWD</option>
+        </select>
+      </div>
+      <div class="col-md-3">
+        <select name="availability" class="form-select">
+          <option value="">All</option>
+          <option value="available" {% if request.args.get('availability') == 'available' %}selected{% endif %}>Available</option>
+          <option value="unavailable" {% if request.args.get('availability') == 'unavailable' %}selected{% endif %}>Unavailable</option>
+        </select>
+      </div>
+      <div class="col-md-2 d-grid">
+        <button type="submit" class="btn btn-primary">Filter</button>
+      </div>
+    </form>
+
+    <!-- 👥 Player List -->
+    <div class="list-group">
+      {% for player in players %}
+        <a href="{{ url_for('player_bp.player_profile', target_id=player.id) }}"
+           class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+          <div>
+            <strong>{{ player.name }}</strong>
+            {% if player.is_captain %}
+              <span class="badge bg-primary ms-1">🧢 Captain</span>
+            {% endif %}
+            <br>
+            Position: {{ player.position.upper() }}<br>
+            Rating: {{ player.skill_rating }}
+          </div>
+          <div>
+            <span class="badge bg-{{ 'success' if player.available else 'secondary' }}">
+              {{ 'Available' if player.available else 'Unavailable' }}
+            </span>
+          </div>
+        </a>
+      {% else %}
+        <div class="alert alert-warning text-center">No players found.</div>
+      {% endfor %}
+    </div>
+
+    <!-- 🔙 Back Button -->
+
+<a href="{{ url_for('player_bp.player_page', player_id=viewer_id) }}" class="btn btn-secondary mt-4">🔙 Back to My Portal</a>
+
+</body>
+</html>
