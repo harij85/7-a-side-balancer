@@ -44,3 +44,4 @@ def player_login():
         return render_template('player_login.html', error='Invalid name or access code.')
 
     return render_template('player_login.html')
+

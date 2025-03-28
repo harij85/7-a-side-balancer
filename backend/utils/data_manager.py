@@ -4,8 +4,9 @@ import os
 from backend.models.player import Player
 
 DATA_PATH = "data/players.json"
+DRAFT_FILE = 'data/draft_state.json'
 CONFIG_FILE = 'config.json'
-DRAFT_FILE = 'draft_state.json'
+
 
 def load_draft_state():
     if os.path.exists(DRAFT_FILE):

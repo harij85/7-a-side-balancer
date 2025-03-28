@@ -1,89 +1,106 @@
 [
     {
-        "id": "998e886b-3954-4208-8ea2-432d070f3554",
-        "name": "Ted",
+        "id": "player-1",
+        "name": "Alice",
         "position": "GK",
-        "skill_rating": 6.0,
+        "skill_rating": 7.2,
         "available": true,
         "role": "player",
-        "access_code": "0d015e",
+        "access_code": "code01",
         "is_captain": false,
-        "match_history": [
-            {
-                "goals": 2,
-                "assists": 1,
-                "tackles": 4,
-                "saves": 3,
-                "rating": 7.5,
-                "match_id": "2025-03-27T19:49:34.397705"
-            }
-        ],
-        "ratings_received": [
-            {
-                "from": "8d12cb34-3131-450b-bde6-5f0015e5903d",
-                "match_id": "2025-03-27T19:49:34.397705",
-                "rating": 5,
-                "comment": "Nice"
-            }
-        ],
+        "match_history": [],
+        "ratings_received": [],
         "notifications": [
             {
-                "type": "rating_received",
-                "from": "p1",
-                "rating": 5,
-                "comment": "Nice",
-                "match_id": "2025-03-27T19:49:34.397705",
-                "timestamp": "2025-03-27T19:54:17.871408"
+                "message": "You've been assigned as a captain! Go to your dashboard when the draft begins.",
+                "timestamp": "2025-03-27T23:57:51.555525"
             }
         ],
         "inbox": [
             {
-                "type": "rating_received",
-                "from": "p1",
-                "rating": 5,
-                "comment": "Nice",
-                "match_id": "2025-03-27T19:49:34.397705",
-                "timestamp": "2025-03-27T19:54:17.871408"
+                "message": "You've been assigned as a captain! Go to your dashboard when the draft begins.",
+                "timestamp": "2025-03-27T23:57:51.555525"
             }
         ]
     },
     {
-        "id": "8d12cb34-3131-450b-bde6-5f0015e5903d",
-        "name": "p1",
-        "position": "GK",
+        "id": "player-2",
+        "name": "Bob",
+        "position": "DEF",
+        "skill_rating": 6.8,
+        "available": true,
+        "role": "player",
+        "access_code": "code02",
+        "is_captain": false,
+        "match_history": [],
+        "ratings_received": [],
+        "notifications": [
+            {
+                "message": "You've been assigned as a captain! Go to your dashboard when the draft begins.",
+                "timestamp": "2025-03-27T23:59:16.812564"
+            }
+        ],
+        "inbox": [
+            {
+                "message": "You've been assigned as a captain! Go to your dashboard when the draft begins.",
+                "timestamp": "2025-03-27T23:59:16.812564"
+            }
+        ]
+    },
+    {
+        "id": "player-3",
+        "name": "Charlie",
+        "position": "MID",
+        "skill_rating": 7.5,
+        "available": true,
+        "role": "player",
+        "access_code": "code03",
+        "is_captain": false,
+        "match_history": [],
+        "ratings_received": [],
+        "notifications": [],
+        "inbox": []
+    },
+    {
+        "id": "player-4",
+        "name": "Diana",
+        "position": "ATT",
+        "skill_rating": 8.1,
+        "available": true,
+        "role": "player",
+        "access_code": "code04",
+        "is_captain": false,
+        "match_history": [],
+        "ratings_received": [],
+        "notifications": [],
+        "inbox": []
+    },
+    {
+        "id": "player-5",
+        "name": "Ethan",
+        "position": "DEF",
+        "skill_rating": 7.0,
+        "available": true,
+        "role": "player",
+        "access_code": "code05",
+        "is_captain": false,
+        "match_history": [],
+        "ratings_received": [],
+        "notifications": [],
+        "inbox": []
+    },
+    {
+        "id": "player-6",
+        "name": "Fatima",
+        "position": "MID",
         "skill_rating": 6.9,
         "available": true,
         "role": "player",
-        "access_code": "dfe41e",
+        "access_code": "code06",
         "is_captain": false,
-        "match_history": [
-            {
-                "goals": 4,
-                "assists": 2,
-                "tackles": 2,
-                "saves": 3,
-                "rating": 9.75,
-                "match_id": "2025-03-27T19:51:06.185834"
-            }
-        ],
-        "ratings_received": [
-            {
-                "from": "998e886b-3954-4208-8ea2-432d070f3554",
-                "match_id": "2025-03-27T19:51:06.185834",
-                "rating": 4,
-                "comment": "cool"
-            }
-        ],
+        "match_history": [],
+        "ratings_received": [],
         "notifications": [],
-        "inbox": [
-            {
-                "type": "rating_received",
-                "from": "Ted",
-                "rating": 4,
-                "comment": "cool",
-                "match_id": "2025-03-27T19:51:06.185834",
-                "timestamp": "2025-03-27T19:53:32.385217"
-            }
-        ]
+        "inbox": []
     }
 ]
