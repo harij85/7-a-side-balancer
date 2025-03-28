@@ -19,8 +19,7 @@ def is_draft_window_open():
 @home_bp.route('/')
 def index():
     # Clear player session if admin is active
-    if session.get('is_admin') and session.get('player_id'):
-        session.pop('player_id')
+    
         
     is_admin = session.get('is_admin', False)
     draft_state = load_draft_state()
