@@ -14,7 +14,7 @@ def admin_login():
         if password == os.getenv('ADMIN_PASSWORD'):
             session.clear()
             session['is_admin'] = True
-            return redirect(url_for('admin.index'))
+            return redirect(url_for('admin_bp.index'))
         else:
             return render_template('admin_login.html', error="Invalid password")
     return render_template('admin_login.html')
