@@ -3,23 +3,106 @@
         "id": "player-1",
         "name": "Alice",
         "position": "GK",
-        "skill_rating": 7.2,
+        "skill_rating": 7.11,
         "available": true,
         "role": "player",
         "access_code": "code01",
         "is_captain": false,
-        "match_history": [],
-        "ratings_received": [],
-        "notifications": [
+        "match_history": [
             {
-                "message": "You've been assigned as a captain! Go to your dashboard when the draft begins.",
-                "timestamp": "2025-03-27T23:57:51.555525"
+                "goals": 6,
+                "assists": 3,
+                "tackles": 4,
+                "saves": 2,
+                "rating": 10.0,
+                "match_id": "2025-03-28T02:00:39.262704"
+            },
+            {
+                "goals": 0,
+                "assists": 0,
+                "tackles": 0,
+                "saves": 0,
+                "rating": 1.0,
+                "match_id": "2025-03-28T17:53:26.193667"
+            },
+            {
+                "goals": 3,
+                "assists": 3,
+                "tackles": 22,
+                "saves": 2,
+                "rating": 10.0,
+                "match_id": "2025-03-28T17:55:58.997272"
             }
         ],
+        "ratings_received": [
+            {
+                "from": "player-2",
+                "match_id": "2025-03-28T02:00:39.262704",
+                "rating": 8,
+                "comment": "really good performance!"
+            }
+        ],
+        "notifications": [],
         "inbox": [
             {
                 "message": "You've been assigned as a captain! Go to your dashboard when the draft begins.",
                 "timestamp": "2025-03-27T23:57:51.555525"
+            },
+            {
+                "message": "Draft is complete.",
+                "timestamp": "2025-03-28T00:46:50.886129"
+            },
+            {
+                "message": "Draft is complete.",
+                "timestamp": "2025-03-28T00:54:10.968029"
+            },
+            {
+                "message": "You've been assigned as a captain! Go to your dashboard when the draft begins.",
+                "timestamp": "2025-03-28T01:12:43.719169"
+            },
+            {
+                "message": "Draft is complete.",
+                "timestamp": "2025-03-28T01:13:30.808266"
+            },
+            {
+                "message": "Draft is complete.",
+                "timestamp": "2025-03-28T01:16:35.993062"
+            },
+            {
+                "message": "Draft is complete.",
+                "timestamp": "2025-03-28T01:21:26.014720"
+            },
+            {
+                "type": "draft_complete",
+                "message": "\u2705 Draft is complete. Check your team below.",
+                "timestamp": "2025-03-28T01:47:41.504284"
+            },
+            {
+                "type": "rating_received",
+                "from": "Bob",
+                "rating": 8,
+                "comment": "really good performance!",
+                "match_id": "2025-03-28T02:00:39.262704",
+                "timestamp": "2025-03-28T02:01:41.187286"
+            },
+            {
+                "type": "draft_complete",
+                "message": "\u2705 Draft is complete. Check your team below.",
+                "timestamp": "2025-03-28T09:47:54.513302"
+            },
+            {
+                "type": "draft_complete",
+                "message": "\u2705 Draft is complete. Check your team below.",
+                "timestamp": "2025-03-28T10:06:11.474587"
+            },
+            {
+                "message": "You've been assigned as a captain! Go to your dashboard when the draft begins.",
+                "timestamp": "2025-03-28T10:41:43.899945"
+            },
+            {
+                "type": "draft_complete",
+                "message": "\u2705 Draft is complete. Check your team below.",
+                "timestamp": "2025-03-28T10:42:09.173610"
             }
         ]
     },
@@ -27,23 +110,83 @@
         "id": "player-2",
         "name": "Bob",
         "position": "DEF",
-        "skill_rating": 6.8,
+        "skill_rating": 8.08,
         "available": true,
         "role": "player",
         "access_code": "code02",
         "is_captain": false,
-        "match_history": [],
-        "ratings_received": [],
-        "notifications": [
+        "match_history": [
             {
-                "message": "You've been assigned as a captain! Go to your dashboard when the draft begins.",
-                "timestamp": "2025-03-27T23:59:16.812564"
+                "goals": 8,
+                "assists": 4,
+                "tackles": 5,
+                "saves": 3,
+                "rating": 10.0,
+                "match_id": "2025-03-28T02:01:10.767889"
             }
         ],
+        "ratings_received": [],
+        "notifications": [],
         "inbox": [
             {
                 "message": "You've been assigned as a captain! Go to your dashboard when the draft begins.",
                 "timestamp": "2025-03-27T23:59:16.812564"
+            },
+            {
+                "message": "Draft is complete.",
+                "timestamp": "2025-03-28T00:46:50.886147"
+            },
+            {
+                "message": "Draft is complete.",
+                "timestamp": "2025-03-28T00:54:10.968042"
+            },
+            {
+                "message": "You've been assigned as a captain! Go to your dashboard when the draft begins.",
+                "timestamp": "2025-03-28T01:12:45.210333"
+            },
+            {
+                "message": "Draft is complete.",
+                "timestamp": "2025-03-28T01:13:30.808280"
+            },
+            {
+                "message": "Draft is complete.",
+                "timestamp": "2025-03-28T01:16:35.993083"
+            },
+            {
+                "message": "Draft is complete.",
+                "timestamp": "2025-03-28T01:21:26.014733"
+            },
+            {
+                "type": "draft_complete",
+                "message": "\u2705 Draft is complete. Check your team below.",
+                "timestamp": "2025-03-28T01:47:41.504300"
+            },
+            {
+                "message": "You've been assigned as a captain! Go to your dashboard when the draft begins.",
+                "timestamp": "2025-03-28T09:28:26.455248"
+            },
+            {
+                "type": "draft_complete",
+                "message": "\u2705 Draft is complete. Check your team below.",
+                "timestamp": "2025-03-28T09:47:54.513330"
+            },
+            {
+                "type": "draft_complete",
+                "message": "\u2705 Draft is complete. Check your team below.",
+                "timestamp": "2025-03-28T10:06:11.474614"
+            },
+            {
+                "message": "You've been assigned as a captain! Go to your dashboard when the draft begins.",
+                "timestamp": "2025-03-28T10:41:45.096105"
+            },
+            {
+                "type": "draft_complete",
+                "message": "\u2705 Draft is complete. Check your team below.",
+                "timestamp": "2025-03-28T10:42:09.173633"
+            },
+            {
+                "message": "You've been assigned as a captain! Go to your dashboard when the draft begins.",
+                "timestamp": "2025-03-28T11:22:29.200816"
             }
         ]
     },
@@ -51,29 +194,162 @@
         "id": "player-3",
         "name": "Charlie",
         "position": "MID",
-        "skill_rating": 7.5,
+        "skill_rating": 6.77,
         "available": true,
         "role": "player",
         "access_code": "code03",
         "is_captain": false,
-        "match_history": [],
+        "match_history": [
+            {
+                "goals": 2,
+                "assists": 4,
+                "tackles": 2,
+                "saves": 0,
+                "rating": 6.5,
+                "match_id": "2025-03-28T16:36:21.044356"
+            },
+            {
+                "goals": 2,
+                "assists": 4,
+                "tackles": 2,
+                "saves": 0,
+                "rating": 6.5,
+                "match_id": "2025-03-28T17:15:43.759598"
+            },
+            {
+                "goals": 2,
+                "assists": 4,
+                "tackles": 2,
+                "saves": 0,
+                "rating": 6.5,
+                "match_id": "2025-03-28T17:25:36.482702"
+            },
+            {
+                "goals": 10,
+                "assists": 10,
+                "tackles": 2,
+                "saves": 2,
+                "rating": 10.0,
+                "match_id": "2025-03-28T17:36:34.913772"
+            },
+            {
+                "goals": 0,
+                "assists": 0,
+                "tackles": 0,
+                "saves": 0,
+                "rating": 1.0,
+                "match_id": "2025-03-28T17:37:29.712692"
+            },
+            {
+                "goals": 10,
+                "assists": 10,
+                "tackles": 10,
+                "saves": 10,
+                "rating": 10.0,
+                "match_id": "2025-03-28T17:52:26.053109"
+            },
+            {
+                "goals": 10,
+                "assists": 10,
+                "tackles": 10,
+                "saves": 10,
+                "rating": 10.0,
+                "match_id": "2025-03-28T17:55:23.196774"
+            },
+            {
+                "goals": 0,
+                "assists": 0,
+                "tackles": 0,
+                "saves": 0,
+                "rating": 1.0,
+                "match_id": "2025-03-28T18:07:01.415373"
+            }
+        ],
         "ratings_received": [],
-        "notifications": [],
-        "inbox": []
+        "notifications": [
+            {
+                "message": "You've been assigned as a captain! Go to your dashboard when the draft begins.",
+                "timestamp": "2025-03-28T11:22:57.216172"
+            }
+        ],
+        "inbox": [
+            {
+                "message": "You've been assigned as a captain! Go to your dashboard when the draft begins.",
+                "timestamp": "2025-03-28T11:22:57.216172"
+            }
+        ]
     },
     {
         "id": "player-4",
         "name": "Diana",
         "position": "ATT",
-        "skill_rating": 8.1,
+        "skill_rating": 7.82,
         "available": true,
         "role": "player",
         "access_code": "code04",
         "is_captain": false,
-        "match_history": [],
-        "ratings_received": [],
-        "notifications": [],
-        "inbox": []
+        "match_history": [
+            {
+                "goals": 4,
+                "assists": 2,
+                "tackles": 3,
+                "saves": 3,
+                "rating": 10.0,
+                "match_id": "2025-03-28T18:07:39.696122"
+            },
+            {
+                "goals": 2,
+                "assists": 3,
+                "tackles": 3,
+                "saves": 2,
+                "rating": 7.75,
+                "match_id": "2025-03-28T18:07:57.084476"
+            },
+            {
+                "goals": 0,
+                "assists": 0,
+                "tackles": 0,
+                "saves": 0,
+                "rating": 1.0,
+                "match_id": "2025-03-28T18:12:31.300218"
+            }
+        ],
+        "ratings_received": [
+            {
+                "from": "player-1",
+                "match_id": "2025-03-28T18:12:31.300218",
+                "rating": 10,
+                "comment": "GREAT!"
+            }
+        ],
+        "notifications": [
+            {
+                "message": "You've been assigned as a captain! Go to your dashboard when the draft begins.",
+                "timestamp": "2025-03-28T11:22:58.200928"
+            },
+            {
+                "type": "rating_received",
+                "from": "Alice",
+                "rating": 10,
+                "comment": "GREAT!",
+                "match_id": "2025-03-28T18:12:31.300218",
+                "timestamp": "2025-03-28T18:16:51.829776"
+            }
+        ],
+        "inbox": [
+            {
+                "message": "You've been assigned as a captain! Go to your dashboard when the draft begins.",
+                "timestamp": "2025-03-28T11:22:58.200928"
+            },
+            {
+                "type": "rating_received",
+                "from": "Alice",
+                "rating": 10,
+                "comment": "GREAT!",
+                "match_id": "2025-03-28T18:12:31.300218",
+                "timestamp": "2025-03-28T18:16:51.829776"
+            }
+        ]
     },
     {
         "id": "player-5",

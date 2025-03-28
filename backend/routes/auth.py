@@ -39,7 +39,7 @@ def player_login():
         if player:
             session['player_id'] = player.id
             session.pop('is_admin', None)
-            return redirect(url_for('player.player_page', player_id=player.id))
+            return redirect(url_for('player_bp.player_page', player_id=player.id))
 
         return render_template('player_login.html', error='Invalid name or access code.')
 

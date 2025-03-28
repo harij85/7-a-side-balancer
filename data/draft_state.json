@@ -1,13 +1,16 @@
 {
-  "captain1_id": "",
-  "captain2_id": "",
-  "team1": [],
-  "team2": [],
-  "remaining_ids": [
-    "",
-    "",
-    "",
-    ""
+  "captain1_id": "player-1",
+  "captain2_id": "player-2",
+  "team1": [
+    "player-3",
+    "player-5"
   ],
-  "turn": ""
+  "team2": [
+    "player-4",
+    "player-6"
+  ],
+  "remaining_ids": [],
+  "turn": null,
+  "complete": true,
+  "last_completed": "2025-03-28T12:45:00"
 }

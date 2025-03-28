@@ -1,9 +1,13 @@
 from flask import Blueprint, render_template, redirect, url_for, session, request
-from datetime import datetime
+from datetime import datetime, timedelta
 from backend.utils.data_manager import load_players, save_players, generate_unique_code, load_draft_state
 from backend.models.player import PerformanceLog
+from backend.utils.draft_timer import get_draft_window
+
 
 player_bp = Blueprint('player_bp', __name__)
+
+
 
 @player_bp.route('/player/<player_id>', methods=['GET', 'POST'])
 def player_page(player_id):
@@ -36,6 +40,7 @@ def player_page(player_id):
     if draft_state and player.is_captain:
         get_player = lambda pid: next((p for p in players if p.id == pid), None)
         if draft_state.get("complete"):
+            show_draft_panel = False 
             draft_context = {
                 'captain_id': player.id,
                 'this_captain': player,
@@ -45,6 +50,7 @@ def player_page(player_id):
                 'team2': [p for pid in draft_state['team2'] if (p := get_player(pid))],
                 'captain1': get_player(draft_state['captain1_id']),
                 'captain2': get_player(draft_state['captain2_id']),
+                'turn': None
             }
         else:
             show_draft_panel = True
@@ -57,15 +63,22 @@ def player_page(player_id):
                 'team2': [p for pid in draft_state['team2'] if (p := get_player(pid))],
                 'captain1': get_player(draft_state['captain1_id']),
                 'captain2': get_player(draft_state['captain2_id']),
+                'turn': get_player(draft_state['turn'])
             }
 
     ratings = [log.rating for log in player.match_history]
+    
+    draft_start, draft_end = get_draft_window()
+    
     return render_template(
         'player_portal.html',
         player=player,
         ratings=ratings,
         show_draft_panel=show_draft_panel,
         draft_context=draft_context,
+        draft_state=draft_state,
+        draft_start=draft_start.isoformat(),
+        draft_end=draft_end.isoformat(),
         is_admin=session.get('is_admin', False)
     )
 
@@ -117,11 +130,21 @@ def player_profile(target_id):
 
         target_player.notifications.append(message)
         target_player.inbox.append(message)
-
+        
+        previous_rating = target_player.skill_rating
         save_players(players)
-        return render_template('thanks.html', player=viewer, message="Rating submitted!", rating_diff=0)
+        rating_diff = round(target_player.skill_rating - previous_rating, 2)
+        return render_template('thanks.html', 
+                               player=viewer, 
+                               message="Rating submitted!", 
+                               rating_diff=rating_diff)
 
-    return render_template('player_profile.html', target=target_player, recent_log=recent_log, viewer_id=viewer_id, has_already_rated=has_already_rated)
+    return render_template('player_profile.html', 
+                           target=target_player, 
+                           recent_log=recent_log, 
+                           viewer_id=viewer_id, 
+                           has_already_rated=has_already_rated,
+                           is_admin=is_admin)
 
 @player_bp.route('/log_performance/<player_id>', methods=['GET', 'POST'])
 def log_performance(player_id):
@@ -140,16 +163,30 @@ def log_performance(player_id):
         assists = int(request.form['assists'])
         tackles = int(request.form['tackles'])
         saves = int(request.form['saves'])
-
+        
+        previous_rating = player.skill_rating
+        
         rating = (goals * 2.5 + assists * 1.5 + tackles * 1.0 + saves * 1.5) / 2.0
         rating = max(1.0, min(round(rating, 2), 10.0))
 
-        log = PerformanceLog(goals=goals, assists=assists, tackles=tackles, saves=saves, rating=rating)
+        log = PerformanceLog(goals=goals, 
+                             assists=assists, 
+                             tackles=tackles, 
+                             saves=saves, 
+                             rating=rating
+                             )
+        
         player.update_performance(log)
         player.update_skill_rating()
         save_players(players)
+        
+        rating_diff = round(player.skill_rating - previous_rating, 2)
 
-        return render_template('thanks.html', player=player, current_rating=player.skill_rating, rating_diff=0, message="Stats submitted!")
+        return render_template('thanks.html', 
+                               player=player, 
+                               current_rating=player.skill_rating, 
+                               rating_diff=rating_diff, 
+                               message="Stats submitted!")
 
     return render_template('log_performance.html', player=player)
 
@@ -199,8 +236,9 @@ def toggle_availability(player_id):
 def player_inbox(player_id):
     players = load_players()
     player = next((p for p in players if p.id == player_id), None)
-    if not player or session.get('player_id') != player_id:
+    if session.get('player_id') != player_id and not session.get('is_admin'):
         return "Unauthorized", 403
+
 
     return render_template('player_inbox.html', player=player, inbox=player.inbox)
 

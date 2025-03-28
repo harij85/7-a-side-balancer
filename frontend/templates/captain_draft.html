@@ -11,40 +11,34 @@
   <div class="container mt-4">
     <h2 class="text-center mb-4">⚽ 7-A-Side Draft Room</h2>
 
+    <!-- Turn Status -->
     <div class="alert {{ 'alert-success' if is_my_turn else 'alert-secondary' }}">
       {% if is_my_turn %}
         🟢 It's your turn to pick, <strong>{{ this_captain.name }}</strong>!
       {% else %}
         ⏳ Waiting for <strong>{{ turn.name }}</strong> to pick...
+      {% else %}
+        ✅ Draft complete.
       {% endif %}
     </div>
 
+    <!-- Teams Overview -->
     <div class="row mb-4">
+      {% for team, name in [(team1, captain1.name), (team2, captain2.name)] %}
       <div class="col-md-6">
-        <h4>{{ captain1.name }}’s Team 🧢</h4>
+        <h4>{{ name }}’s Team 🧢</h4>
         <ul class="list-group">
-          {% for p in team1 %}
+          {% for p in team %}
             <li class="list-group-item">{{ p.name }} ({{ p.position.upper() }})</li>
-          {% endfor %}
-          {% if not team1 %}
+          {% else %}
             <li class="list-group-item text-muted">No picks yet</li>
-          {% endif %}
+          {% endfor %}
         </ul>
       </div>
-
-      <div class="col-md-6">
-        <h4>{{ captain2.name }}’s Team 🧢</h4>
-        <ul class="list-group">
-          {% for p in team2 %}
-            <li class="list-group-item">{{ p.name }} ({{ p.position.upper() }})</li>
-          {% endfor %}
-          {% if not team2 %}
-            <li class="list-group-item text-muted">No picks yet</li>
-          {% endif %}
-        </ul>
-      </div>
+      {% endfor %}
     </div>
 
+    <!-- Draft Pool -->
     <div class="card mb-4">
       <div class="card-header">
         <h5 class="mb-0">Available Players to Pick</h5>
@@ -52,9 +46,12 @@
       <ul class="list-group list-group-flush">
         {% for player in remaining %}
           <li class="list-group-item d-flex justify-content-between align-items-center">
-            <div><strong>{{ player.name }}</strong> ({{ player.position.upper() }})</div>
+            <div>
+              <strong>{{ player.name }}</strong> ({{ player.position.upper() }})
+            </div>
             {% if is_my_turn %}
-              <form method="POST" action="/draft/pick/{{ player.id }}" class="mb-0">
+            <form action="{{ url_for('captains.draft_pick', player_id=player.id) }}" method="POST">
+
                 <input type="hidden" name="captain_id" value="{{ captain_id }}">
                 <button class="btn btn-sm btn-primary">Pick</button>
               </form>
@@ -62,16 +59,15 @@
               <span class="text-muted">[Waiting]</span>
             {% endif %}
           </li>
-        {% endfor %}
-        {% if not remaining %}
+        {% else %}
           <li class="list-group-item text-muted text-center">All players have been drafted.</li>
-        {% endif %}
+        {% endfor %}
       </ul>
     </div>
 
+    <!-- Return Button -->
     <div class="text-center">
-      <a href="{{ url_for('home_bp.index') }}" class="btn btn-outline-dark">Return to Dashboard</a>
-
+      <a href="{{ url_for('player_bp.player_page') }}" class="btn btn-outline-dark">Exit draft</a>
     </div>
   </div>
 

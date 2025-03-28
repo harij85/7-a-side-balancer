@@ -3,21 +3,40 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>7-A-Side Player Dashboard</title>
+  <title>Draft</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
+<script src="{{ url_for('static', filename='js/counter.js') }}"></script>
 <body>
+  
   
 
   <div class="container mt-4">
 
-    <h1 class="mb-4 text-center">7-A-Side Player Dashboard</h1>
-
+    <h1 class="mb-4 text-center">Draft </h1>
+    <div class="mt-4">
+      
+      <div class="container mt-4 text-center">
+        <h4 class="mb-2 text-muted"></h4>
+        <p id="nextDraftCountdown"
+           class="fw-bold display-5 text-info"
+           data-start="{{ draft_start }}"
+           data-end="{{ draft_end }}"
+           data-complete="{{ draft_state.complete|tojson }}">
+        </p>
+      </div>
+    </div>
     <!-- Admin-only: Begin Draft -->
     {% if is_admin and players|selectattr('is_captain')|list|length == 2 %}
-    <form method="POST" action="{{ url_for('draft.start_draft') }}" class="mb-3">
-        <button type="submit" class="btn btn-warning">Begin Draft</button>
-      </form>
+    {% if not draft_state.complete and draft_window_open %}
+    <form action="{{ url_for('draft_bp.start_draft') }}" method="POST">
+    <button class="btn btn-success">Begin Draft</button>
+    </form>
+    {% elif draft_state.complete %}
+    <button class="btn btn-secondary" disabled>Draft Complete</button>
+    {% else %}
+    <button class="btn btn-danger" disabled>Draft Locked (Tue-Sat only)</button>
+    {% endif %}
 
       <div class="mb-3">
         {% for player in players if player.is_captain %}
@@ -42,19 +61,40 @@
     </div>
     
     
-
+    
     <!-- Player List -->
     <div class="list-group">
-      {% for player in players %}
-        <div class="list-group-item">
+        {% for player in players %}
+        {% if loop.index == 1 %}
+        <span class="badge bg-warning text-dark">🥇</span>
+        {% elif loop.index == 2 %}
+        <span class="badge bg-secondary">🥈</span>
+        {% elif loop.index == 3 %}
+        <span class="badge bg-orange">🥉</span>
+        {% endif %}
+
+
+        <div class="list-group-item justify-content-between">
           <strong>{{ player.name }}</strong>
           {% if player.is_captain %}
             <span class="badge bg-primary ms-2">Captain</span>
           {% endif %}
-          ({{ player.position.upper() }})<br>
-          Skill Rating: {{ player.skill_rating }}<br>
+          ({{ player.position.upper() }})
+          
+          <br>
+
+          Rating: {{ player.skill_rating }}
+          {% if player.rating_diff > 0 %}
+          <span class="text-success">↑ +{{ player.rating_diff }}</span>
+          {% elif player.rating_diff < 0 %}
+          <span class="text-danger">↓ +{{ player.rating_diff }}</span>
+          {% else %}
+          <span class="text-muted">➖ </span>
+          {% endif %}
+          
+          <br>
           Availability:
-          <span class="badge bg-{{ 'success' if player.available else 'danger' }}">
+          <span class="badge bg-{{ 'success' if player.available else 'secondary' }}">
             {{ 'Available' if player.available else 'Unavailable' }}
           </span>
 
@@ -108,6 +148,7 @@
           {% endif %}
         </div>
       {% endfor %}
+      
     </div>
   </div>
 

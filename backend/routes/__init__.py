@@ -7,7 +7,6 @@ from backend.routes.captains import captains_bp
 from backend.routes.home import home_bp
 
 
-    
 def register_routes(app):
     app.register_blueprint(player_bp)
     app.register_blueprint(admin_bp)
@@ -16,17 +15,15 @@ def register_routes(app):
     app.register_blueprint(auth_bp)
     app.register_blueprint(home_bp)
 
-    return app
 
 def create_app():
-    app = Flask(__name__)
+    app = Flask(
+        __name__,
+        static_folder='frontend/static',
+        template_folder='frontend/templates'
+    )
     app.secret_key = '1234'
 
-    app.register_blueprint(player_bp)
-    app.register_blueprint(admin_bp)
-    app.register_blueprint(draft_bp)
-    app.register_blueprint(auth_bp)
-    app.register_blueprint(captains_bp)
-    app.register_blueprint(home_bp)
-    
+    register_routes(app)
+
     return app

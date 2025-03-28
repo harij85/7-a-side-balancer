@@ -36,11 +36,11 @@
 
     <p class="mt-4">
       {% if rating_diff > 0 %}
-        🔥 You improved by {{ rating_diff }}!
+           You improved by {{ rating_diff }}!
       {% elif rating_diff < 0 %}
-        😬 You dropped by {{ rating_diff | abs }}.
+           You dropped by {{ rating_diff | abs }}.
       {% else %}
-        ⚖️ Your rating stayed the same.
+           Your rating stayed the same.
       {% endif %}
     </p>
 

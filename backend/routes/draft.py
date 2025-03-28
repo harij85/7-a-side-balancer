@@ -1,8 +1,25 @@
-from flask import Blueprint, render_template, redirect, url_for, request, session
-from datetime import datetime
+from flask import Blueprint, render_template, redirect, url_for, request, session, flash
+from datetime import datetime, timedelta
 from backend.utils.data_manager import load_players, save_players, load_draft_state, save_draft_state
+import pytz
+draft_bp = Blueprint('draft_bp', __name__)
 
-draft_bp = Blueprint('draft', __name__)
+
+def is_draft_window_open():
+    now = datetime.now()
+    #Draft window: Tuesday 00:00 to Saturday 23:59
+    #Future logic make draft window customisable by Team Admin
+    start = now - timedelta(days=now.weekday() - 1)
+    start = start.replace(hour=0, minute=0, second=0, microsecond=0)
+    end = start + timedelta(days=4, hours=23, minutes=59, seconds=59)
+    return start <= now <= end
+
+def can_start_draft(draft_state):
+    if not is_draft_window_open():
+        flash("Drafting is only allowed between Tuesday and Saturday!", "danger")
+        return redirect(url_for('admin.view_players'))
+
+    return is_draft_window_open() and not draft_state.get("complete", False)
 
 @draft_bp.route('/draft/start', methods=['POST'])
 def start_draft():
@@ -32,7 +49,7 @@ def start_draft():
     save_draft_state(state)
     session['draft_state'] = state
 
-    return redirect(url_for('draft.draft_observer_view'))
+    return redirect(url_for('draft_bp.draft_observer_view'))
 
 
 @draft_bp.route('/draft/view')
@@ -86,6 +103,8 @@ def captain_draft_view(captain_id):
     return render_template('captain_draft.html', **context)
 
 
+
+
 @draft_bp.route('/draft/pick/<player_id>', methods=['POST'])
 def draft_pick(player_id):
     state = load_draft_state()
@@ -97,39 +116,43 @@ def draft_pick(player_id):
     if captain_id != state['turn']:
         return "It's not your turn!", 403
 
+    # Assign player to team
     if state['turn'] == state['captain1_id']:
         state['team1'].append(player_id)
-        next_turn = state.get('captain2_id')
+        next_turn = state['captain2_id']
     else:
         state['team2'].append(player_id)
-        next_turn = state.get('captain1_id')
+        next_turn = state['captain1_id']
 
+    # Remove player from pool
     state['remaining_ids'].remove(player_id)
 
+    # Check if draft is complete
     if not state['remaining_ids']:
+        state['complete'] = True
+        state['turn'] = None
+
+        # Notify both captains
         players = load_players()
         for cap_id in [state['captain1_id'], state['captain2_id']]:
             captain = next((p for p in players if p.id == cap_id), None)
             if captain:
                 message = {
-                    "message": "Draft is complete.",
+                    "type": "draft_complete",
+                    "message": "✅ Draft is complete. Check your team below.",
                     "timestamp": datetime.now().isoformat()
                 }
                 captain.notifications.append(message)
                 captain.inbox.append(message)
         save_players(players)
-        state['complete'] = True
-        state['turn'] = None
     else:
         state['turn'] = next_turn
 
+    # Save state
     save_draft_state(state)
-    session['draft_state'] = state
 
-    if state.get('complete'):
-        return redirect(url_for('draft.draft_final_view', captain_id=captain_id))
-    else:
-        return redirect(url_for('player.player_page', player_id=captain_id))
+    # Always redirect captains to their portal to see live draft status
+    return redirect(url_for('player_bp.player_page', player_id=captain_id))
 
 
 @draft_bp.route('/draft/final/<captain_id>')

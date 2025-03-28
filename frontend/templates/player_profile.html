@@ -4,43 +4,54 @@
   <meta charset="UTF-8">
   <title>{{ target.name }}'s Profile</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link
-    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
-    rel="stylesheet"
-  >
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
   <div class="container mt-4">
     <h2 class="mb-3 text-center">{{ target.name }}'s Last Game</h2>
 
     {% if recent_log %}
-    <div class="card mb-4">
+    <div class="card mb-4 shadow-sm">
       <div class="card-body">
         <p><strong>Position:</strong> {{ target.position }}</p>
         <p><strong>Match Rating:</strong> {{ recent_log.rating }}</p>
-        <p>Goals: {{ recent_log.goals }} | Assists: {{ recent_log.assists }}</p>
-        <p>Tackles: {{ recent_log.tackles }} | Saves: {{ recent_log.saves }}</p>
+        <p>⚽ Goals: {{ recent_log.goals }} | 🎯 Assists: {{ recent_log.assists }}</p>
+        <p>🛡️ Tackles: {{ recent_log.tackles }} | 🧤 Saves: {{ recent_log.saves }}</p>
         <small class="text-muted">Match ID: {{ recent_log.match_id }}</small>
       </div>
     </div>
-    {% if not is_admin %}
 
+    {% if not is_admin and not has_already_rated %}
     <form method="POST">
       <div class="mb-3">
-        <label for="rating" class="form-label">⭐ Your Rating (1–10)</label>
+        <label for="rating" class="form-label">⭐ Rate {{ target.name }} (1–10)</label>
         <input type="number" name="rating" id="rating" class="form-control" min="1" max="10" required>
       </div>
       <div class="mb-3">
         <label for="comment" class="form-label">💬 Comment (optional)</label>
         <textarea name="comment" id="comment" class="form-control" rows="3"></textarea>
       </div>
-      <button type="submit" class="btn btn-success">Submit Rating</button>
-      <a href="{{ url_for('player_bp.player_page', player_id=viewer_id) }}" class="btn btn-secondary ms-2">Back</a>
+      <button type="submit" class="btn btn-success me-2">Submit Rating</button>
     </form>
+    {% elif has_already_rated %}
+    <div class="alert alert-info">✅ You’ve already rated {{ target.name }} for this match.</div>
     {% endif %}
+
     {% else %}
-      <div class="alert alert-info">No match data available for {{ target.name }} yet.</div>
+    <div class="alert alert-info">No match data available for {{ target.name }} yet.</div>
     {% endif %}
+
+    <!-- ✅ Back Button -->
+    <div class="mt-4">
+      {% if is_admin %}
+        <a href="{{ url_for('admin.view_players') }}" class="btn btn-secondary">🔙 Back to Player List</a>
+      {% else %}
+        <a href="{{ url_for('player_bp.player_page', player_id=viewer_id) }}" class="btn btn-secondary">🔙 Back to Portal</a>
+      {% endif %}
+    </div>
+
   </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

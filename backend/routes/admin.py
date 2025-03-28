@@ -117,6 +117,15 @@ def view_players():
         return "Unauthorized", 403
 
     players = load_players()
+    for player in players:
+        if len(player.match_history) >= 2:
+            last = player.match_history[-1].rating
+            second_last = player.match_history[-2].rating
+            player.rating_diff = round(last - second_last, 2)
+        else:
+            player.rating_diff = 0
+            
+    players = sorted(players, key=lambda x: x.skill_rating, reverse=True)
 
     # Get query parameters
     search = request.args.get('search', '').lower()

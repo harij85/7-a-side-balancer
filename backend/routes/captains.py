@@ -1,9 +1,9 @@
 from datetime import datetime
 from flask import Blueprint, render_template, request, redirect, url_for, session
-from backend.utils.data_manager import load_players, load_draft_state, save_draft_state
+from backend.utils.data_manager import load_players, save_players, load_draft_state, save_draft_state
 from backend.models.player import Player
 
-captains_bp = Blueprint('captains', __name__)
+captains_bp = Blueprint('captains_bp', __name__)
 
 @captains_bp.route('/draft/captain/<captain_id>')
 def captain_draft_view(captain_id):
