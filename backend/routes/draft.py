@@ -1,7 +1,6 @@
 from flask import Blueprint, render_template, redirect, url_for, request, session, flash
 from datetime import datetime, timedelta
 from backend.utils.data_manager import load_players, save_players, load_draft_state, save_draft_state
-import pytz
 draft_bp = Blueprint('draft_bp', __name__)
 
 
