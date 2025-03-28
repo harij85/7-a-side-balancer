@@ -10,7 +10,7 @@ def create_app():
     static_path = os.path.join(project_root, 'frontend', 'static')
 
     app = Flask(__name__, static_folder=static_path, template_folder=templates_path)
-    app.secret_key = os.getenv('SECRET_KEY', '1234')
+    app.secret_key = os.getenv('SECRET_KEY')
 
     register_routes(app)
     return app

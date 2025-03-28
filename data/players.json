@@ -114,7 +114,7 @@
         "available": true,
         "role": "player",
         "access_code": "code02",
-        "is_captain": false,
+        "is_captain": true,
         "match_history": [
             {
                 "goals": 8,
@@ -126,7 +126,12 @@
             }
         ],
         "ratings_received": [],
-        "notifications": [],
+        "notifications": [
+            {
+                "message": "You've been assigned as a captain! Go to your dashboard when the draft begins.",
+                "timestamp": "2025-03-28T21:04:23.384359"
+            }
+        ],
         "inbox": [
             {
                 "message": "You've been assigned as a captain! Go to your dashboard when the draft begins.",
@@ -187,6 +192,10 @@
             {
                 "message": "You've been assigned as a captain! Go to your dashboard when the draft begins.",
                 "timestamp": "2025-03-28T11:22:29.200816"
+            },
+            {
+                "message": "You've been assigned as a captain! Go to your dashboard when the draft begins.",
+                "timestamp": "2025-03-28T21:04:23.384359"
             }
         ]
     },
@@ -373,6 +382,44 @@
         "available": true,
         "role": "player",
         "access_code": "code06",
+        "is_captain": false,
+        "match_history": [],
+        "ratings_received": [],
+        "notifications": [],
+        "inbox": []
+    },
+    {
+        "id": "0ad6a168-533d-4d03-bd8f-98cee9376375",
+        "name": "Hari",
+        "position": "GK",
+        "skill_rating": 5.0,
+        "available": true,
+        "role": "player",
+        "access_code": "97b1ad",
+        "is_captain": true,
+        "match_history": [],
+        "ratings_received": [],
+        "notifications": [
+            {
+                "message": "You've been assigned as a captain! Go to your dashboard when the draft begins.",
+                "timestamp": "2025-03-28T21:04:21.000189"
+            }
+        ],
+        "inbox": [
+            {
+                "message": "You've been assigned as a captain! Go to your dashboard when the draft begins.",
+                "timestamp": "2025-03-28T21:04:21.000189"
+            }
+        ]
+    },
+    {
+        "id": "fdba0521-d78a-49bf-b354-1745e08ccc41",
+        "name": "p2",
+        "position": "ATT",
+        "skill_rating": 5.0,
+        "available": true,
+        "role": "player",
+        "access_code": "457089",
         "is_captain": false,
         "match_history": [],
         "ratings_received": [],
