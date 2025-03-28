@@ -16,6 +16,8 @@ def create_app():
 
     app = Flask(__name__, template_folder=templates_path)
     app.secret_key = os.getenv('SECRET_KEY')  # You can use a secure random key here
+    app.config['SESSION_COOKIE_SECURE'] = True
+    app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
 
     # ✅ Register Blueprints (do this BEFORE returning)
     app.register_blueprint(player_bp)
