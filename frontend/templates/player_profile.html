@@ -7,6 +7,7 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
+  {% include '_navbar.html' %}
   <div class="container mt-4">
     <h2 class="mb-3 text-center">{{ target.name }}'s Last Game</h2>
 
@@ -21,35 +22,43 @@
       </div>
     </div>
 
-    {% if not is_admin and not has_already_rated %}
-    <form method="POST">
+    {% if not is_admin %}
+  {% set match_id = recent_log.match_id %}
+  {% set already_players_player_rated = target.players_player_ratings | selectattr('from', 'equalto', viewer_id) | selectattr('match_id', 'equalto', match_id) | list | length > 0 %}
+
+  {% if not already_players_player_rated %}
+    <!-- Players' Player Rating Form -->
+    <hr>
+    <h5>👥 Players' Player Rating</h5>
+    <form method="POST" action="{{ url_for('player_bp.players_player_rating', player_id=session['player_id']) }}">
+      <input type="hidden" name="target_id" value="{{ target.id }}">
+      <input type="hidden" name="match_id" value="{{ match_id }}">
       <div class="mb-3">
-        <label for="rating" class="form-label">⭐ Rate {{ target.name }} (1–10)</label>
-        <input type="number" name="rating" id="rating" class="form-control" min="1" max="10" required>
+        <label for="players_player_rating">Players' Player Rating (1-5):</label>
+        <input type="number" name="rating" id="players_player_rating" class="form-control" min="1" max="5" required>
       </div>
       <div class="mb-3">
-        <label for="comment" class="form-label">💬 Comment (optional)</label>
-        <textarea name="comment" id="comment" class="form-control" rows="3"></textarea>
+        <label for="comment">💬 Comment (optional)</label>
+        <textarea name="comment" id="comment" class="form-control" rows="2"></textarea>
       </div>
-      <button type="submit" class="btn btn-success me-2">Submit Rating</button>
+      <button type="submit" class="btn btn-primary">Submit Players' Player Rating</button>
     </form>
-    {% elif has_already_rated %}
-    <div class="alert alert-info">✅ You’ve already rated {{ target.name }} for this match.</div>
-    {% endif %}
+  {% else %}
+    <div class="alert alert-info">You’ve already rated {{ target.name }} for this match.</div>
+  {% endif %}
+{% endif %}
 
     {% else %}
-    <div class="alert alert-info">No match data available for {{ target.name }} yet.</div>
+      <div class="alert alert-warning">⚠️ No match data available for {{ target.name }} yet.</div>
     {% endif %}
 
-    <!-- ✅ Back Button -->
     <div class="mt-4">
-      {% if is_admin %}
-        <a href="{{ url_for('admin.view_players') }}" class="btn btn-secondary">🔙 Back to Player List</a>
+      {% if is_admin and from_admin %}
+        <a href="{{ url_for('home_bp.index') }}" class="btn btn-secondary">Back to Dashboard</a>
       {% else %}
-        <a href="{{ url_for('player_bp.player_page', player_id=viewer_id) }}" class="btn btn-secondary">🔙 Back to Portal</a>
+        <a href="{{ url_for('home_bp.view_players') }}" class="btn btn-secondary">Back to Player List</a>
       {% endif %}
     </div>
-
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>

@@ -1,0 +1,59 @@
+<nav class="navbar navbar-light bg-dark px-3 justify-content-between">
+    <div class="dropdown">
+      <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+        ☰
+      </button>
+      <ul class="dropdown-menu">
+        {% if is_admin %}
+          <li><a class="dropdown-item" href="{{ url_for('home_bp.index') }}">Admin Dashboard</a></li>
+        {% endif %}
+        {% if player %}
+          <li><a class="dropdown-item" href="{{ url_for('player_bp.player_page', player_id=player.id) }}">Player Portal</a></li>
+          <li>
+            <form action="{{ url_for('auth.player_logout') }}" method="GET" class="px-3">
+              <button class="dropdown-item">Logout</button>
+            </form>
+          </li>
+        {% endif %}
+      </ul>
+    </div>
+    <span class="navbar-brand mb-0 h4">7-A-Side</span>
+    <div class="d-flex align-items-center gap-2">
+      {% if player %}
+        <a href="{{ url_for('player_bp.player_inbox', player_id=player.id) }}" class="btn btn-outline-info">Inbox</a>
+        <div class="dropdown">
+          <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+            {% if player.notifications %}
+              <span class="badge bg-danger">{{ player.notifications|length }}</span>
+            {% endif %}
+          </button>
+          <ul class="dropdown-menu dropdown-menu-end p-2" style="max-height: 300px; overflow-y: auto; max-width: 350px;">
+            {% if player.notifications %}
+              {% for note in player.notifications %}
+                <li class="dropdown-item text-wrap">
+                  {% if note.type == "rating_received" %}
+                    ⭐ {{ note.rating }}/10 from <em>{{ note.from }}</em>
+                    {% if note.comment %}
+                      <div class="text-muted">"{{ note.comment|truncate(60, True) }}"</div>
+                    {% endif %}
+                  {% elif note.message %}
+                    <div class="text-muted">{{ note.message|truncate(60, True) }}</div>
+                  {% endif %}
+                  <div class="small text-muted mt-1">{{ note.timestamp }}</div>
+                </li>
+                <li><hr class="dropdown-divider"></li>
+              {% endfor %}
+              <li class="text-center">
+                <form action="{{ url_for('player_bp.clear_notifications', player_id=player.id) }}" method="POST">
+                  <button class="btn btn-sm btn-outline-danger">Clear Notifications</button>
+                </form>
+              </li>
+            {% else %}
+              <li class="dropdown-item text-muted">No notifications yet</li>
+            {% endif %}
+          </ul>
+        </div>
+      {% endif %}
+    </div>
+  </nav>
+  

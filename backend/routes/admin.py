@@ -1,8 +1,15 @@
+
+import os
 from datetime import datetime
-from flask import Blueprint, render_template, redirect, url_for, request, session
+from flask import Blueprint, render_template, redirect, url_for, request, session, flash
 from backend.models.player import Player
+from backend.models.match import Match
+from backend.utils.match_manager import load_matches, save_matches
 from backend.utils.data_manager import load_players, save_players, generate_unique_code
 from backend.utils.team_generator import generate_balanced_teams
+from dotenv import load_dotenv
+
+load_dotenv()
 
 admin_bp = Blueprint('admin', __name__)
 
@@ -10,7 +17,7 @@ admin_bp = Blueprint('admin', __name__)
 def admin_login():
     if request.method == 'POST':
         password = request.form.get('password')
-        if password == 'admin123':
+        if password == os.getenv('ADMIN_PASSWORD'):
             session['is_admin'] = True
             session.pop('player_id', None)
             return redirect(url_for('home_bp.index'))
@@ -56,6 +63,8 @@ def remove_player(player_id):
     players = [p for p in players if p.id != player_id]
     save_players(players)
     return redirect(url_for('home_bp.index'))
+
+
 
 @admin_bp.route('/assign_captain/<player_id>', methods=['POST'], endpoint='assign_captain')
 def assign_captain(player_id):
@@ -147,3 +156,30 @@ def view_players():
         players = [p for p in players if not p.available]
 
     return render_template('view_players.html', players=players, search=search, position=position, availability=availability)
+
+@admin_bp.route('/create_match', methods=['GET', 'POST'])
+def create_match():
+    players = load_players()
+    if request.method == 'POST':
+        date = request.form['date']
+        start_time = request.form['start_time']
+        duration = int(request.form['duration'])
+        selected_players = request.form.getlist('players')
+
+        match = Match(
+            date=date,
+            start_time=start_time,
+            duration_minutes=duration,
+            players=selected_players,
+            is_completed=False
+        )
+
+        matches = load_matches()
+        matches.append(match)
+        save_matches(matches)
+
+        flash("✅ Match created successfully", "success")
+        return redirect(url_for('home_bp.index'))
+
+    return render_template('create_match.html', players=players)
+

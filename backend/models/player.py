@@ -28,6 +28,7 @@ class Player:
         self.inbox = []
         self.is_captain = is_captain
         self.match_history = match_history or []
+        self.players_player_ratings = []
 
     def update_performance(self, performance):
         self.match_history.append(performance)
@@ -37,6 +38,12 @@ class Player:
 
     def recent_form(self):
         return recent_form(self.match_history, self.skill_rating)
+    
+    def has_rated_player(self, target_player, match_id):
+        return any(
+            r['from'] == self.id and r['match_id'] == match_id
+            for r in target_player.ratings_received
+            )
 
     def to_dict(self):
         return {
@@ -51,7 +58,8 @@ class Player:
             'match_history': [p.to_dict() for p in self.match_history],
             'ratings_received': self.ratings_received,
             'notifications': getattr(self, 'notifications', []),
-            'inbox': self.inbox
+            'inbox': self.inbox,
+            'players_player_ratings': self.players_player_ratings
         }
 
     @staticmethod
@@ -71,4 +79,6 @@ class Player:
             notifications=data.get('notifications', [])
         )
         player.inbox = data.get("inbox", [])
+        player.players_player_ratings=data.get("players_player_ratings", [])
         return player
+

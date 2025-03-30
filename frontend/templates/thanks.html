@@ -23,16 +23,20 @@
     <h1 class="mb-4">🙌 Stats Submitted!</h1>
     
     <p class="lead">Your updated skill rating is:</p>
+    <div class="alert alert-success">
     <h2 class="display-4">
       {{ current_rating }}
+      
+          Rating submitted successfully!
       {% if rating_diff > 0 %}
         <span class="text-success">↑ +{{ rating_diff }}</span>
       {% elif rating_diff < 0 %}
         <span class="text-danger">↓ {{ rating_diff }}</span>
       {% else %}
-        <span class="text-muted">No change</span>
+        <span class="text-muted">-</span>
       {% endif %}
     </h2>
+  </div>
 
     <p class="mt-4">
       {% if rating_diff > 0 %}

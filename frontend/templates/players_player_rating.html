@@ -1,0 +1,46 @@
+<!-- frontend/templates/players_player_rating.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Players' Player Rating</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+
+<div class="container mt-4">
+  <h2>Players' Player Ratings</h2>
+  <p class="text-muted">Rate your teammates based on team spirit & effort. This will not affect skill ratings.</p>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+        <div class="alert alert-{{ category }}">{{ message }}</div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+
+  <form method="POST" action="{{ url_for('player_bp.players_player_rating', player_id=current_player.id) }}">
+    {% for teammate in eligible_players %}
+      <div class="card mb-3">
+        <div class="card-body">
+          <h5>{{ teammate.name }} ({{ teammate.position }})</h5>
+          <div class="mb-2">
+            <label for="rating_{{ teammate.id }}">Rating (1-5):</label>
+            <input type="number" name="rating" id="rating_{{ teammate.id }}" min="1" max="5" required class="form-control">
+          </div>
+          <div class="mb-2">
+            <label for="comment_{{ teammate.id }}">Comment:</label>
+            <input type="text" name="comment" id="comment_{{ teammate.id }}" class="form-control">
+          </div>
+          <input type="hidden" name="target_id" value="{{ teammate.id }}">
+          <button type="submit" class="btn btn-sm btn-success mt-2">Submit Rating</button>
+        </div>
+      </div>
+    {% endfor %}
+  </form>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

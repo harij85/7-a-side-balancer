@@ -1,5 +1,5 @@
 # backend/routes/home.py
-from flask import Blueprint, render_template, session
+from flask import Blueprint, render_template, session, request
 from backend.utils.data_manager import load_players, load_draft_state
 from datetime import datetime, timedelta
 from backend.utils.draft_timer import get_draft_window
@@ -55,3 +55,56 @@ def index():
         draft_start=draft_start,
         draft_end=draft_end  
     )
+
+@home_bp.route('/view_players')
+def view_players():
+    players = load_players()
+
+    # Role check
+    is_admin = session.get('is_admin', False)
+    player_id = session.get('player_id', None)
+
+    # Find current player (for navbar notifications)
+    current_player = next((p for p in players if p.id == player_id), None)
+
+    # Filter Logic
+    search = request.args.get('search', '').lower()
+    position = request.args.get('position', '')
+    availability = request.args.get('availability', '')
+
+    filtered_players = []
+    for player in players:
+        if search and search not in player.name.lower():
+            continue
+        if position and player.position != position:
+            continue
+        if availability:
+            if availability == 'available' and not player.available:
+                continue
+            if availability == 'unavailable' and player.available:
+                continue
+        filtered_players.append(player)
+
+    # Sort by skill_rating (descending)
+    filtered_players.sort(key=lambda p: p.skill_rating, reverse=True)
+
+    return render_template(
+        'view_players.html',
+        players=filtered_players,
+        is_admin=is_admin,
+        player_id=player_id,
+        player=current_player  # 🟢 Add this
+    )
+
+
+@home_bp.route('/view_player_stats/<player_id>')
+def view_player_stats(player_id):
+    if not session.get('is_admin'):
+        return "Unauthorized", 403
+
+    players = load_players()
+    target_player = next((p for p in players if p.id == player_id), None)
+    if not target_player:
+        return "Player not found", 404
+
+    return render_template('view_player_stats.html', player=target_player)
