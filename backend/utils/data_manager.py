@@ -4,6 +4,7 @@ import json
 import os
 from backend.models.player import Player # Corrected import path if needed
 
+
 # Define paths relative to this file's directory or use absolute paths
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__))) # backend directory
 DATA_DIR = os.path.join(BASE_DIR, 'data')
@@ -101,8 +102,11 @@ def generate_unique_code(existing_codes):
         if new_code not in existing_codes:
             return new_code
         
-def get_player(player_id, players=None):
-    """Fetch a player by ID. If players list not provided, load from file."""
-    if players is None:
-        players = load_players()
-    return next((p for p in players if p.id == player_id), None)
+# --- Lookup ---
+def get_player(players, player_id):
+    """Safely retrieves a Player object by ID from a list of Player instances."""
+    for p in players:
+        if isinstance(p, Player) and p.id == player_id:
+            return p
+    print(f"[DEBUG] get_player: Player ID '{player_id}' not found in list.")
+    return None
