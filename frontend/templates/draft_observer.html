@@ -2,66 +2,116 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Draft Observer - 7-A-Side</title>
+  <title>Draft Observer - Locker Room</title> {# Updated title #}
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <!-- ✅ Bootstrap CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+   {# Optional: Add auto-refresh meta tag or JS later #}
+   {# <meta http-equiv="refresh" content="15"> #}
 </head>
 <body>
+  {# Navbar needs 'player', 'is_admin', 'player_id' #}
+  {% include '_navbar.html' with context %}
+
   <div class="container mt-4">
     <h2 class="text-center mb-4">Draft Observer View</h2>
 
-    <div class="alert alert-info text-center">
-      <strong>Current Turn:</strong> {{ turn.name }}
-    </div>
-
-    <div class="row mb-4">
-      <div class="col-md-6">
-        <h4>{{ captain1.name }}’s Team 🧢</h4>
-        <ul class="list-group">
-          {% for p in team1 %}
-            <li class="list-group-item">{{ p.name }} ({{ p.position.upper() }})</li>
-          {% endfor %}
-          {% if not team1 %}
-            <li class="list-group-item text-muted">No picks yet</li>
-          {% endif %}
-        </ul>
-      </div>
-
-      <div class="col-md-6">
-        <h4>{{ captain2.name }}’s Team 🧢</h4>
-        <ul class="list-group">
-          {% for p in team2 %}
-            <li class="list-group-item">{{ p.name }} ({{ p.position.upper() }})</li>
-          {% endfor %}
-          {% if not team2 %}
-            <li class="list-group-item text-muted">No picks yet</li>
-          {% endif %}
-        </ul>
-      </div>
-    </div>
-
-    <h4>Remaining Players in Draft Pool:</h4>
-    <ul class="list-group">
-      {% for player in remaining %}
-        <li class="list-group-item d-flex justify-content-between">
-          <div>
-            <strong>{{ player.name }}</strong> ({{ player.position.upper() }})
+     {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
           </div>
-          <span class="badge bg-secondary">Awaiting Pick</span>
-        </li>
-      {% endfor %}
-      {% if not remaining %}
-        <li class="list-group-item text-muted">All players have been drafted.</li>
+        {% endfor %}
       {% endif %}
-    </ul>
+    {% endwith %}
 
+    {# Draft Status #}
+    {% if is_complete %}
+       <div class="alert alert-success text-center">
+           <i class="bi bi-check-circle-fill"></i> <strong>Draft Complete!</strong>
+       </div>
+    {% elif turn %}
+       <div class="alert alert-info text-center">
+           <i class="bi bi-arrow-right-circle-fill"></i> <strong>Current Turn:</strong> {{ turn.name }}
+       </div>
+    {% else %}
+        <div class="alert alert-secondary text-center">
+           Draft status unknown or not started.
+       </div>
+    {% endif %}
+
+
+    {# Teams Display #}
+    <div class="row mb-4">
+      <div class="col-md-6 mb-3">
+        <div class="card h-100">
+          <div class="card-header bg-primary text-white">
+            <i class="bi bi-people-fill"></i> {{ captain1.name }}’s Team
+          </div>
+          <ul class="list-group list-group-flush">
+             <li class="list-group-item list-group-item-primary"><strong>{{ captain1.name }} (Captain)</strong></li>
+            {% for p in team1 %}
+              <li class="list-group-item">{{ p.name }} ({{ p.position }})</li>
+            {% endfor %}
+            {% if not team1 %}
+              <li class="list-group-item text-muted">No picks yet</li>
+            {% endif %}
+          </ul>
+        </div>
+      </div>
+
+      <div class="col-md-6 mb-3">
+         <div class="card h-100">
+           <div class="card-header bg-success text-white">
+             <i class="bi bi-people-fill"></i> {{ captain2.name }}’s Team
+           </div>
+          <ul class="list-group list-group-flush">
+             <li class="list-group-item list-group-item-success"><strong>{{ captain2.name }} (Captain)</strong></li>
+            {% for p in team2 %}
+              <li class="list-group-item">{{ p.name }} ({{ p.position }})</li>
+            {% endfor %}
+            {% if not team2 %}
+              <li class="list-group-item text-muted">No picks yet</li>
+            {% endif %}
+          </ul>
+         </div>
+      </div>
+    </div>
+
+    {# Remaining Players Pool #}
+    {% if not is_complete and remaining %}
+       <div class="card">
+          <div class="card-header">
+             <i class="bi bi-person-lines-fill"></i> Remaining Players in Draft Pool ({{ remaining|length }})
+          </div>
+          <ul class="list-group list-group-flush" style="max-height: 300px; overflow-y: auto;">
+             {% for player in remaining %}
+               <li class="list-group-item d-flex justify-content-between align-items-center">
+                 <span>{{ player.name }} ({{ player.position }}) - Rating: {{ player.skill_rating }}</span>
+                 <span class="badge bg-secondary rounded-pill">Available</span>
+               </li>
+             {% endfor %}
+          </ul>
+       </div>
+    {% elif not is_complete %}
+         <div class="alert alert-warning text-center">No players remaining in the pool.</div>
+    {% endif %}
+
+
+    {# Back Button #}
     <div class="text-center mt-4">
-      <a href="{{ url_for('home_bp.index') }}">Back to Admin Dashboard</a>
+       {% if is_admin %}
+         <a href="{{ url_for('home_bp.index') }}" class="btn btn-secondary"><i class="bi bi-arrow-left-circle"></i> Back to Admin Dashboard</a>
+       {% elif player %}
+          <a href="{{ url_for('player_bp.player_page', player_id=player.id) }}" class="btn btn-secondary"><i class="bi bi-arrow-left-circle"></i> Back to Player Portal</a>
+       {% else %}
+          <a href="{{ url_for('home_bp.index') }}" class="btn btn-secondary"><i class="bi bi-arrow-left-circle"></i> Back to Home</a>
+       {% endif %}
     </div>
   </div>
 
-  <!-- ✅ Bootstrap JS Bundle -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

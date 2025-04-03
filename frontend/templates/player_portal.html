@@ -5,156 +5,396 @@
   <title>{{ player.name }} - Player Portal</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+  {# Link countdown JS #}
+  <script src="{{ url_for('static', filename='js/counter.js') }}" defer></script>
+  {# Link Chart.js #}
+  <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
 </head>
-<script src="{{ url_for('static', filename='js/counter.js') }}"></script>
-
 
 <body>
 
-  <!-- 🔔 Navbar -->
-  {% include '_navbar.html' %}
+  {# Navbar requires 'player' object #}
+  {% include '_navbar.html' with context %}
 
-  <!-- 👤 Player Info -->
   <div class="container mt-4">
-    <h2>{{ player.name }}</h2>
-    <p><strong>Position:</strong> {{ player.position }}</p>
-    <p><strong>Skill Rating:</strong> {{ player.skill_rating }}</p>
-    <p><strong>Access Code:</strong> {{ player.access_code }}</p>
 
-    {% if is_admin or session['player_id'] == player.id %}
-      <form method="POST" action="{{ url_for('player_bp.toggle_availability', player_id=player.id) }}">
-        <button type="submit" class="btn btn-outline-warning">
-          {% if player.available %} Mark as Unavailable {% else %} Mark as Available {% endif %}
-        </button>
-      </form>
-      <form action="{{ url_for('player_bp.regenerate_code', player_id=player.id) }}" method="POST" class="mt-2">
-        <button class="btn btn-outline-warning">Regenerate Access Code</button>
-      </form>
-    {% endif %}
-
-    <!-- 📈 Match Ratings -->
-    <h5 class="mt-4">Recent Match Ratings</h5>
-    {% if ratings %}
-      <ul class="list-group">
-        {% for r in ratings %}
-          <li class="list-group-item">{{ r }}/10</li>
+     {# Flash Messages #}
+     {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
         {% endfor %}
-      </ul>
-    {% else %}
-      <p class="text-muted">No match ratings yet.</p>
-    {% endif %}
-
-    <!-- ⚙️ Actions -->
-    <div class="mt-4 d-grid gap-2">
-      <a href="{{ url_for('player_bp.log_performance', player_id=player.id) }}" class="btn btn-success">Log New Performance</a>
-      <a href="{{ url_for('home_bp.view_players') }}" class="btn btn-primary">Rate All Players</a>
-
-
-
-    </div>
-
-    <!-- 🎯 Draft Panel -->
-    <div class="mt-4">
-      <h5>Draft Countdown</h5>
-      <p id="draftCountdown"
-      class="text-info"
-      data-start="{{ draft_start }}"
-      data-end="{{ draft_end }}"
-      data-complete="{{ draft_state.complete|tojson }}">
-   </p>
-    </div>
-    {% if draft_context %}
-      <hr class="my-4">
-      {% if show_draft_panel %}
-        <h4>🧢 Captain Draft Panel</h4>
-        {% if draft_context.is_my_turn %}
-          <p class="text-success">It's your turn to pick!</p>
-          <form action="{{ url_for('captains_bp.draft_pick', player_id='') }}" method="POST" id="draftForm">
-            <input type="hidden" name="captain_id" value="{{ draft_context.captain_id }}">
-            <div class="mb-3">
-              <label for="playerSelect" class="form-label">Select a player:</label>
-              <select name="player_id" id="playerSelect" class="form-select" required>
-                <option disabled selected value="">-- Choose a player --</option>
-                {% for p in draft_context.remaining %}
-                  <option value="{{ p.id }}">{{ p.name }} ({{ p.position }})</option>
-                {% endfor %}
-              </select>
-            </div>
-            <button type="submit" class="btn btn-primary">Pick Player</button>
-          </form>
-          <script>
-            const form = document.getElementById('draftForm');
-            form.addEventListener('submit', function (e) {
-              const selectedId = document.getElementById('playerSelect').value;
-              form.action = "{{ url_for('captains_bp.draft_pick', player_id='') }}" + selectedId;
-            });
-          </script>
-        {% else %}
-          <p class="text-muted">Waiting for the other captain to pick...</p>
-        {% endif %}
       {% endif %}
+    {% endwith %}
 
-      {% if draft_state and draft_state.get('complete') %}
-        <hr class="my-4">
-        <h4 class="text-success">Teams</h4>
-        <div class="row mt-3">
-          <div class="col-md-6">
-            <h5>{{ draft_context.captain1.name }}'s Team</h5>
-            <ul class="list-group">
-              {% for p in draft_context.team1 %}
-                <li class="list-group-item">{{ p.name }}</li>
-              {% endfor %}
-            </ul>
-          </div>
-          <div class="col-md-6">
-            <h5>{{ draft_context.captain2.name }}'s Team</h5>
-            <ul class="list-group">
-              {% for p in draft_context.team2 %}
-                <li class="list-group-item">{{ p.name }}</li>
-              {% endfor %}
-            </ul>
-          </div>
+    {# --- Player Info Card --- #}
+    <div class="card mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+           <h4 class="mb-0">{{ player.name }}'s Portal</h4>
+            <span class="badge bg-{{ 'success' if player.available else 'secondary' }} fs-6">
+                <i class="bi {{ 'bi-check-circle-fill' if player.available else 'bi-x-circle-fill' }}"></i>
+                {{ 'Available' if player.available else 'Unavailable' }}
+            </span>
         </div>
-        
-      {% endif %}
-    {% endif %}
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <p><strong>Position:</strong> {{ player.position }}</p>
+                    <p><strong>Skill Rating:</strong> {{ player.skill_rating }}
+                      {% if player.rating_diff > 0 %}
+                          <span class="text-success small">(↑ {{ player.rating_diff }})</span>
+                      {% elif player.rating_diff < 0 %}
+                          <span class="text-danger small">(↓ {{ player.rating_diff }})</span>
+                      {% else %}
+                           <span class="text-muted small">(-)</span>
+                      {% endif %}
+                    </p>
+                     {% if player.age %}
+                         <p><strong>Age:</strong> {{ player.age }}</p>
+                     {% endif %}
+                    <p><strong>Access Code:</strong>
+                        <span class="badge bg-light text-dark border">{{ player.access_code }}</span>
+                        <button class="btn btn-sm btn-outline-secondary ms-2"
+                                onclick="navigator.clipboard.writeText('{{ player.access_code }}'); this.textContent='Copied!'; setTimeout(() => this.textContent='Copy', 1500)"
+                                title="Copy Code">Copy</button>
+                     </p>
+                </div>
+                 <div class="col-md-6 d-flex flex-column gap-2 align-items-start">
+                    {# Toggle Availability Button #}
+                    <form action="{{ url_for('player_bp.toggle_availability') }}" method="POST" class="d-grid w-100">
+                        <button type="submit" class="btn btn-outline-warning">
+                             <i class="bi {{ 'bi-calendar-x' if player.available else 'bi-calendar-check' }}"></i>
+                             {% if player.available %} Mark as Unavailable {% else %} Mark as Available {% endif %}
+                        </button>
+                    </form>
+                    {# Regenerate Code Button #}
+                    <form action="{{ url_for('player_bp.regenerate_code') }}" method="POST" class="d-grid w-100">
+                        <button class="btn btn-outline-danger" type="button" data-bs-toggle="modal" data-bs-target="#confirmRegenCodeModal">
+                            <i class="bi bi-arrow-clockwise"></i> Regenerate Access Code
+                        </button>
+                    </form>
+                     {# Quick Actions #}
+                     <a href="{{ url_for('player_bp.log_performance') }}" class="btn btn-success w-100"><i class="bi bi-graph-up-arrow"></i> Log My Performance</a>
+                     <a href="{{ url_for('home_bp.view_players') }}" class="btn btn-primary w-100"><i class="bi bi-people"></i> View/Rate Players</a>
+                 </div>
+            </div>
+        </div>
+    </div>
+
+    {# --- Performance History --- #}
+    <div class="card mb-4">
+        <div class="card-header">
+            Performance History
+        </div>
+        <div class="card-body">
+            {% if ratings %}
+               {# Chart Canvas #}
+                <canvas id="ratingChart" style="max-height: 250px;"></canvas>
+                <hr>
+                {# Last 5 Ratings List #}
+                <h6>Recent Match Ratings (/10):</h6>
+                <ul class="list-group list-group-flush">
+                    {% for r in ratings[-5:] | reverse %} {# Show last 5, newest first #}
+                    <li class="list-group-item">Game Rating: {{ r }}</li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p class="text-muted">No match ratings logged yet. Use the 'Log My Performance' button after a game.</p>
+            {% endif %}
+        </div>
+    </div>
+
+
+    {# --- Draft Panel (Only for Captains in an active/completed draft) --- #}
+    <div class="card mb-4">
+        <div class="card-header">
+            Captain Draft Information
+        </div>
+         <div class="card-body">
+             {# Draft Countdown Timer #}
+             <p>
+                 <strong id="draftStatusLabel">Draft Window Status:</strong>
+                 <span id="draftCountdown"
+                       class="fw-bold"
+                       data-start="{{ draft_start }}"
+                       data-end="{{ draft_end }}"
+                       data-complete="{{ draft_state.complete | default(false) | tojson }}">
+                     Loading...
+                 </span>
+             </p>
+             <hr>
+
+            {% if player.is_captain and draft_context and not draft_context.error %}
+                {# --- Draft Panel for Captains --- #}
+                <div id="draftPanel">
+                     <h5 class="mb-3">🧢 Captain Draft Panel</h5>
+
+                    {% if show_draft_panel %} {# Draft is Active #}
+                         <div class="alert alert-info">
+                             <strong>Turn:</strong> {{ draft_context.turn.name if draft_context.turn else 'N/A' }}
+                         </div>
+
+                        {% if draft_context.is_my_turn %}
+                            <div class="alert alert-success"><i class="bi bi-arrow-right-circle-fill"></i> It's your turn to pick!</div>
+                             {# Pick Form #}
+                            <form action="{{ url_for('draft_bp.draft_pick', player_id='__PLAYERID__') }}" method="POST" id="draftPickForm">
+                                <div class="input-group mb-3">
+                                    <select name="player_to_pick" id="playerSelect" class="form-select" required>
+                                        <option value="" disabled selected>-- Choose player to draft --</option>
+                                        {% for p in draft_context.remaining %}
+                                            <option value="{{ p.id }}">{{ p.name }} ({{ p.position }}) - Rating: {{ p.skill_rating }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <button type="submit" class="btn btn-primary">Draft Player</button>
+                                </div>
+                             </form>
+                             <script>
+                                // Update form action dynamically based on selection
+                                const draftForm = document.getElementById('draftPickForm');
+                                const playerSelect = document.getElementById('playerSelect');
+                                if (draftForm && playerSelect) {
+                                    draftForm.addEventListener('submit', function (e) {
+                                        const selectedId = playerSelect.value;
+                                        if (selectedId) {
+                                            // Replace placeholder in action URL
+                                            draftForm.action = draftForm.action.replace('__PLAYERID__', selectedId);
+                                        } else {
+                                            e.preventDefault(); // Prevent submission if no player selected
+                                            alert('Please select a player to draft.');
+                                        }
+                                    });
+                                }
+                             </script>
+
+                        {% else %}
+                            <div class="alert alert-warning"><i class="bi bi-hourglass-split"></i> Waiting for {{ draft_context.turn.name if draft_context.turn else 'other captain' }} to pick...</div>
+                        {% endif %}
+
+                         {# Available Players List (during active draft) #}
+                         <h6>Available Pool ({{ draft_context.remaining | length }} left):</h6>
+                         <ul class="list-group mb-3" style="max-height: 200px; overflow-y: auto;">
+                             {% for p in draft_context.remaining %}
+                                 <li class="list-group-item">{{ p.name }} ({{ p.position }})</li>
+                             {% else %}
+                                  <li class="list-group-item text-muted">No players left to pick.</li>
+                             {% endfor %}
+                         </ul>
+
+                    {% elif draft_context.is_complete %} {# Draft is Complete #}
+                        <div class="alert alert-success"><i class="bi bi-check-circle-fill"></i> Draft Complete!</div>
+                         <a href="{{ url_for('draft_bp.message_team', captain_id=player.id) }}" class="btn btn-outline-primary mb-3"><i class="bi bi-chat-dots-fill"></i> Message Your Team</a>
+
+                    {% endif %} {# End Active/Complete Check #}
+
+
+                    {# --- Team Display (Always show if captain in context) --- #}
+                     <div class="row mt-3">
+                          <div class="col-md-6">
+                             <h5>{{ draft_context.captain1.name }}'s Team</h5>
+                             <ul class="list-group">
+                                 <li class="list-group-item active">{{ draft_context.captain1.name }} (C)</li>
+                                 {% for p in draft_context.team1 %}
+                                     <li class="list-group-item">{{ p.name }} ({{ p.position }})</li>
+                                 {% else %}
+                                      <li class="list-group-item text-muted">--</li>
+                                 {% endfor %}
+                             </ul>
+                         </div>
+                         <div class="col-md-6">
+                             <h5>{{ draft_context.captain2.name }}'s Team</h5>
+                             <ul class="list-group">
+                                  <li class="list-group-item active">{{ draft_context.captain2.name }} (C)</li>
+                                 {% for p in draft_context.team2 %}
+                                     <li class="list-group-item">{{ p.name }} ({{ p.position }})</li>
+                                  {% else %}
+                                      <li class="list-group-item text-muted">--</li>
+                                 {% endfor %}
+                             </ul>
+                         </div>
+                    </div> {# End Row #}
+
+                 </div> {# End draftPanel #}
+
+            {% elif player.is_captain %}
+                 <p class="text-muted">You are a captain, but no draft is currently active or you were not part of the last one.</p>
+            {% else %}
+                 <p class="text-muted">Draft information is primarily for designated team captains.</p>
+                 {% if draft_state and 'captain1_id' in draft_state %}
+                     <a href="{{ url_for('draft_bp.draft_observer_view') }}" class="btn btn-sm btn-outline-info">View Draft Progress</a>
+                 {% endif %}
+            {% endif %} {# End Captain/Draft Context Check #}
+        </div> {# End Card Body #}
+    </div> {# End Draft Card #}
+
+  </div> {# End Container #}
+
+
+  {# --- Modals --- #}
+  <!-- Confirm Regenerate Code Modal -->
+  <div class="modal fade" id="confirmRegenCodeModal" tabindex="-1" aria-labelledby="confirmRegenCodeLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="confirmRegenCodeLabel">Confirm Code Regeneration</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          Are you sure you want to generate a new access code? Your old code will stop working immediately.
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          {# Form triggers the POST request #}
+          <form action="{{ url_for('player_bp.regenerate_code') }}" method="POST" class="d-inline">
+             <button type="submit" class="btn btn-danger">Yes, Regenerate Code</button>
+          </form>
+        </div>
+      </div>
+    </div>
   </div>
 
-  <!-- 📊 Performance Chart -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  {# --- Chart Script --- #}
   <script>
-    const ratings = {{ ratings|tojson }};
-    const labels = ratings.map((_, i) => `Game ${i + 1}`);
-    const ctx = document.getElementById('ratingChart')?.getContext('2d');
-    if (ctx) {
-      new Chart(ctx, {
-        type: 'line',
-        data: {
-          labels: labels,
-          datasets: [{
-            label: 'Performance Rating',
-            data: ratings,
-            borderWidth: 2,
-            fill: false,
-            tension: 0.2
-          }]
-        },
-        options: {
-          responsive: true,
-          scales: {
-            y: {
-              beginAtZero: false,
-              suggestedMin: 1,
-              suggestedMax: 10
-            }
-          }
+   document.addEventListener('DOMContentLoaded', function() {
+        const ratingsData = {{ ratings | default([]) | tojson }};
+        const labels = ratingsData.map((_, i) => `Game ${i + 1}`);
+        const ctx = document.getElementById('ratingChart')?.getContext('2d');
+
+        if (ctx && ratingsData.length > 0) { // Only create chart if canvas exists and data is available
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Match Performance Rating',
+                        data: ratingsData,
+                        borderColor: 'rgb(75, 192, 192)', // Example color
+                        borderWidth: 2,
+                        fill: false,
+                        tension: 0.1 // Makes line slightly curved
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false, // Allow chart to resize height
+                    scales: {
+                        y: {
+                            beginAtZero: false, // Don't force start at 0
+                            suggestedMin: Math.max(0, Math.min(...ratingsData) - 1), // Adjust min based on data
+                            suggestedMax: Math.min(10, Math.max(...ratingsData) + 1), // Adjust max based on data, capped at 10
+                            ticks: {
+                                stepSize: 1 // Show integer ticks if appropriate
+                            }
+                        }
+                    },
+                     plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top',
+                        },
+                        tooltip: {
+                             callbacks: {
+                                label: function(context) {
+                                    let label = context.dataset.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    if (context.parsed.y !== null) {
+                                        label += context.parsed.y.toFixed(1) + '/10'; // Format tooltip
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        } else if (ctx) {
+             // Optional: Display a message on the canvas if no data
+             ctx.font = "16px Arial";
+             ctx.fillStyle = "#aaa";
+             ctx.textAlign = "center";
+             ctx.fillText("No performance data yet.", ctx.canvas.width / 2, ctx.canvas.height / 2);
         }
-      });
-    }
+   });
   </script>
-  
-<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js"></script>
+
+ <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+{# Include countdown script specifically for the player portal element #}
+<script>
+    // Small adaptation for player portal countdown element
+    document.addEventListener('DOMContentLoaded', function () {
+        const draftCountdownElem = document.getElementById('draftCountdown');
+        const draftStatusLabel = document.getElementById('draftStatusLabel'); // Get the label too
+
+        function updateDraftCountdown() {
+            if (!draftCountdownElem || !draftStatusLabel) return;
+
+            const startTime = draftCountdownElem.getAttribute('data-start');
+            const endTime = draftCountdownElem.getAttribute('data-end');
+            // Get completion status directly from attribute
+            const isComplete = draftCountdownElem.getAttribute('data-complete') === 'true';
+
+            const now = new Date();
+            const start = new Date(startTime);
+            const end = new Date(endTime);
+
+            let labelText = "Draft Window Status:"; // Default label
+            let countdownText = "";
+            let textClass = "text-muted"; // Default text color class
+
+            if (isComplete) {
+                countdownText = "Completed";
+                labelText = "Last Draft Status:";
+                textClass = "text-success"; // Green for complete
+                // Stop interval if complete? Depends if window times are for *next* draft
+                // clearInterval(intervalId); // Uncomment if needed
+            } else if (now < start) {
+                // Before draft window opens
+                const distance = start - now;
+                const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+                countdownText = `Opens in ${days}d ${hours}h ${minutes}m ${seconds}s`;
+                labelText = "Next Draft Window:";
+                textClass = "text-info"; // Blue for upcoming
+            } else if (now >= start && now <= end) {
+                // During draft window
+                const distance = end - now;
+                 const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+                 countdownText = `Closes in ${days}d ${hours}h ${minutes}m ${seconds}s`;
+                 labelText = "Current Draft Window:";
+                textClass = "text-warning"; // Orange for active
+            } else {
+                 // After draft window closed (and not marked complete?)
+                 countdownText = "Closed";
+                 labelText = "Last Draft Window:";
+                 textClass = "text-danger"; // Red for closed/past
+                 // Stop interval?
+                 // clearInterval(intervalId); // Uncomment if needed
+            }
+
+            draftStatusLabel.textContent = labelText; // Update the label text
+            draftCountdownElem.textContent = countdownText;
+            // Apply text color class, removing others first
+            draftCountdownElem.classList.remove('text-muted', 'text-success', 'text-info', 'text-warning', 'text-danger');
+            draftCountdownElem.classList.add(textClass);
+        }
+
+        // Initial call and set interval
+        updateDraftCountdown();
+        const intervalId = setInterval(updateDraftCountdown, 1000);
+    });
+</script>
 
 
 </body>

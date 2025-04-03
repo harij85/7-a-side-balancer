@@ -1,110 +1,103 @@
 # backend/routes/home.py
-from flask import Blueprint, render_template, session, request
-from backend.utils.data_manager import load_players, load_draft_state
-from datetime import datetime, timedelta
-from backend.utils.draft_timer import get_draft_window
-
+from flask import Blueprint, render_template, session, request, redirect, url_for, flash
+from backend.utils.data_manager import load_players, load_draft_state, get_player # Import helper
+from backend.utils.draft_timer import get_draft_window, is_draft_window_open
+from backend.models.player import Player # Import Player model
 
 home_bp = Blueprint('home_bp', __name__)
 
-def is_draft_window_open():
-    now = datetime.now()
-    start = now - timedelta(days=now.weekday() - 1)
-    start = start.replace(hour=0, minute=0, second=0, microsecond=0)
-    end = start + timedelta(days=4, hours=23, minutes=59, seconds=59)
-    return start <= now <= end
-
-
-
 @home_bp.route('/')
 def index():
-    # Clear player session if admin is active
-    
-        
+    """Renders the main dashboard/homepage."""
     is_admin = session.get('is_admin', False)
-    draft_state = load_draft_state()
-    draft_window_open = is_draft_window_open()
+    player_id = session.get('player_id')
+
+    # If admin is logged in, ensure no player session confusion
+    # if is_admin and player_id:
+    #     session.pop('player_id', None)
+    #     flash("Admin session active. Player session cleared.", "info")
+    #     player_id = None # Update local variable
 
     players = load_players()
-    for player in players:
-        if len(player.match_history) >= 2:
-            last = player.match_history[-1].rating
-            second_last = player.match_history[-2].rating
-            player.rating_diff = round(last - second_last, 2)
-        else:
-            player.rating_diff = 0
-            
-    players = sorted(players, key=lambda x: x.skill_rating, reverse=True)
-    
-    is_admin = session.get('is_admin', False)
-    
-    # ✅ Add this logic
-    captain_count = sum(1 for p in players if p.is_captain)
-    can_assign_more = captain_count < 2
-    
+    draft_state = load_draft_state()
+    draft_window_open = is_draft_window_open()
     draft_start, draft_end = get_draft_window()
 
+    # Get current player object if logged in as player
+    current_player = get_player(players, player_id) if player_id else None
+
+    # Sort players for display (e.g., by rating)
+    players.sort(key=lambda x: x.skill_rating, reverse=True)
+
+    # Determine captain assignment possibility
+    captain_count = sum(1 for p in players if p.is_captain)
+    can_assign_more_captains = captain_count < 2
 
     return render_template(
         'index.html',
         players=players,
         is_admin=is_admin,
+        player_id=player_id, # Pass player_id for template logic
+        player=current_player, # Pass player object for navbar/greeting
         draft_state=draft_state,
         draft_window_open=draft_window_open,
-        can_assign_more=can_assign_more,# ✅ Include this
-        draft_start=draft_start,
-        draft_end=draft_end  
+        can_assign_more=can_assign_more_captains,
+        draft_start=draft_start.isoformat(), # Pass as ISO string for JS
+        draft_end=draft_end.isoformat(),
+        next_draft_start=draft_start, # Pass datetime object for display
+        next_draft_end=draft_end
     )
 
-@home_bp.route('/view_players')
+@home_bp.route('/players') # Changed route to '/players' for clarity
 def view_players():
+    """Displays a filterable list of all players."""
     players = load_players()
-
-    # Role check
     is_admin = session.get('is_admin', False)
-    player_id = session.get('player_id', None)
+    player_id = session.get('player_id')
 
-    # Find current player (for navbar notifications)
-    current_player = next((p for p in players if p.id == player_id), None)
+    # Get current player object for navbar/context
+    current_player = get_player(players, player_id) if player_id else None
 
-    # Filter Logic
-    search = request.args.get('search', '').lower()
-    position = request.args.get('position', '')
-    availability = request.args.get('availability', '')
+    # --- Filtering Logic ---
+    search = request.args.get('search', '').strip().lower()
+    position = request.args.get('position', '').upper()
+    availability = request.args.get('availability', '') # 'available', 'unavailable', ''
 
-    filtered_players = []
-    for player in players:
-        if search and search not in player.name.lower():
-            continue
-        if position and player.position != position:
-            continue
-        if availability:
-            if availability == 'available' and not player.available:
-                continue
-            if availability == 'unavailable' and player.available:
-                continue
-        filtered_players.append(player)
+    filtered_players = players # Start with all players
 
-    # Sort by skill_rating (descending)
+    if search:
+        filtered_players = [p for p in filtered_players if search in p.name.lower()]
+    if position:
+        filtered_players = [p for p in filtered_players if p.position == position]
+    if availability == 'available':
+        filtered_players = [p for p in filtered_players if p.available]
+    elif availability == 'unavailable':
+        filtered_players = [p for p in filtered_players if not p.available]
+
+    # Sort final list
     filtered_players.sort(key=lambda p: p.skill_rating, reverse=True)
 
+    # --- Render Template ---
     return render_template(
-        'view_players.html',
+        'view_players.html', # Use the dedicated template
         players=filtered_players,
+        # Pass necessary context for the template and navbar
         is_admin=is_admin,
         player_id=player_id,
-        player=current_player  # 🟢 Add this
+        player=current_player,
+        # Pass filter values back to template to keep them selected
+        search_term=request.args.get('search', ''), # Pass original case back
+        selected_position=request.args.get('position', ''),
+        selected_availability=availability
     )
 
 
-@home_bp.route('/view_player_stats/<player_id>')
-def view_player_stats(player_id):
-    if not session.get('is_admin'):
-        return "Unauthorized", 403
+# Removed view_player_stats - Admin/Player profile viewing is handled by player_routes.player_profile
+# If a separate admin-only detailed stats view is needed, it could be added back in admin.py
 
-    players = load_players()
-    target_player = next((p for p in players if p.id == player_id), None)
-    if not target_player:
-        return "Player not found", 404
 
-    return render_template('view_player_stats.html', player=target_player)
+# START OF REFACTORED FILE: backend/routes/player_routes.py ---
+
+#python
+# backend/routes/player_routes.py
+

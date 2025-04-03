@@ -7,57 +7,109 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
-  {% include '_navbar.html' %}
-  <div class="container mt-4">
-    <h2 class="mb-3 text-center">{{ target.name }}'s Last Game</h2>
+  {# Assume _navbar requires 'player' (current viewer) and 'is_admin' #}
+  {% include '_navbar.html' with context %}
 
-    {% if recent_log %}
+  <div class="container mt-4">
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <h2 class="mb-3 text-center">{{ target.name }}'s Profile</h2>
+
     <div class="card mb-4 shadow-sm">
+       <div class="card-header">
+           Basic Info
+       </div>
       <div class="card-body">
         <p><strong>Position:</strong> {{ target.position }}</p>
-        <p><strong>Match Rating:</strong> {{ recent_log.rating }}</p>
-        <p>⚽ Goals: {{ recent_log.goals }} | 🎯 Assists: {{ recent_log.assists }}</p>
-        <p>🛡️ Tackles: {{ recent_log.tackles }} | 🧤 Saves: {{ recent_log.saves }}</p>
-        <small class="text-muted">Match ID: {{ recent_log.match_id }}</small>
+        <p><strong>Current Skill Rating:</strong> {{ target.skill_rating }}</p>
+        {% if target.age %}
+            <p><strong>Age:</strong> {{ target.age }}</p>
+        {% endif %}
+        <p><strong>Availability:</strong>
+            <span class="badge bg-{{ 'success' if target.available else 'secondary' }}">
+              {{ 'Available' if target.available else 'Unavailable' }}
+            </span>
+        </p>
       </div>
     </div>
 
-    {% if not is_admin %}
-  {% set match_id = recent_log.match_id %}
-  {% set already_players_player_rated = target.players_player_ratings | selectattr('from', 'equalto', viewer_id) | selectattr('match_id', 'equalto', match_id) | list | length > 0 %}
 
-  {% if not already_players_player_rated %}
-    <!-- Players' Player Rating Form -->
-    <hr>
-    <h5>👥 Players' Player Rating</h5>
-    <form method="POST" action="{{ url_for('player_bp.players_player_rating', player_id=session['player_id']) }}">
-      <input type="hidden" name="target_id" value="{{ target.id }}">
-      <input type="hidden" name="match_id" value="{{ match_id }}">
-      <div class="mb-3">
-        <label for="players_player_rating">Players' Player Rating (1-5):</label>
-        <input type="number" name="rating" id="players_player_rating" class="form-control" min="1" max="5" required>
+    <h4 class="mb-3">Last Match Performance</h4>
+    {% if recent_log and match_context %}
+    <div class="card mb-4 shadow-sm">
+        <div class="card-header">
+            Match: {{ match_context.date }} at {{ match_context.start_time }} (ID: {{ match_context.match_id[:8] }}...)
+        </div>
+      <div class="card-body">
+        <p><strong>Match Rating:</strong> {{ recent_log.rating }}/10</p>
+        <p>⚽ Goals: {{ recent_log.goals }} | 🎯 Assists: {{ recent_log.assists }} | 🛡️ Tackles: {{ recent_log.tackles }} | 🧤 Saves: {{ recent_log.saves }}</p>
       </div>
-      <div class="mb-3">
-        <label for="comment">💬 Comment (optional)</label>
-        <textarea name="comment" id="comment" class="form-control" rows="2"></textarea>
-      </div>
-      <button type="submit" class="btn btn-primary">Submit Players' Player Rating</button>
-    </form>
-  {% else %}
-    <div class="alert alert-info">You’ve already rated {{ target.name }} for this match.</div>
-  {% endif %}
-{% endif %}
+    </div>
 
-    {% else %}
-      <div class="alert alert-warning">⚠️ No match data available for {{ target.name }} yet.</div>
+    {# --- Players' Player Rating Section --- #}
+    {# Only show if logged in, not viewing self, participated in the match #}
+    {% if viewer and viewer.id != target.id and match_context and viewer.id in match_context.players %}
+      <hr>
+      <h5>👥 Players' Player Rating for this Match</h5>
+      {% if has_already_rated %}
+        <div class="alert alert-info">✔️ You’ve already rated {{ target.name }} for this match.</div>
+      {% elif can_rate %}
+        <form method="POST" action="{{ url_for('player_bp.players_player_rating') }}">
+          {# Hidden fields to pass context #}
+          <input type="hidden" name="target_id" value="{{ target.id }}">
+          <input type="hidden" name="match_id" value="{{ match_context.match_id }}">
+
+          <div class="mb-3">
+            <label for="players_player_rating" class="form-label">Your Rating (1-5):</label>
+            <select name="rating" id="players_player_rating" class="form-select" required>
+                <option value="" disabled selected>Choose rating...</option>
+                <option value="1">1 - Poor</option>
+                <option value="2">2 - Fair</option>
+                <option value="3">3 - Average</option>
+                <option value="4">4 - Good</option>
+                <option value="5">5 - Excellent</option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label for="comment" class="form-label">💬 Comment (Optional)</label>
+            <textarea name="comment" id="comment" class="form-control" rows="2" placeholder="Add a brief comment..."></textarea>
+          </div>
+          <button type="submit" class="btn btn-primary">Submit Players' Player Rating</button>
+        </form>
+      {% else %}
+         {# This case might occur if can_rate logic is faulty, defensive coding #}
+         <div class="alert alert-secondary">Rating not available for this match.</div>
+      {% endif %}
+    {% elif viewer and viewer.id == target.id %}
+         <div class="alert alert-secondary">You cannot rate yourself.</div>
+    {% elif viewer and match_context and viewer.id not in match_context.players %}
+        <div class="alert alert-secondary">You did not participate in this match, so you cannot rate players for it.</div>
     {% endif %}
 
-    <div class="mt-4">
-      {% if is_admin and from_admin %}
-        <a href="{{ url_for('home_bp.index') }}" class="btn btn-secondary">Back to Dashboard</a>
-      {% else %}
-        <a href="{{ url_for('home_bp.view_players') }}" class="btn btn-secondary">Back to Player List</a>
-      {% endif %}
+    {% else %}
+      <div class="alert alert-warning">⚠️ No recent match performance data available for {{ target.name }}.</div>
+    {% endif %}
+
+    {# --- Back Button --- #}
+    <div class="mt-4 text-center">
+       {# Simplified back button logic - always go back to player list for now #}
+       <a href="{{ url_for('home_bp.view_players') }}" class="btn btn-secondary">Back to Player List</a>
+       {# If needed, add specific logic for admin return #}
+       {# {% if is_admin and request.args.get('from_admin') %}
+            <a href="{{ url_for('home_bp.index') }}" class="btn btn-secondary">Back to Admin Dashboard</a>
+       {% else %}
+            <a href="{{ url_for('home_bp.view_players') }}" class="btn btn-secondary">Back to Player List</a>
+       {% endif %} #}
     </div>
   </div>
 

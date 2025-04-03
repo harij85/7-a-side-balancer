@@ -1,0 +1,30 @@
+[
+    {
+        "id": "fd11ed1e-540c-413c-a192-b1e25536433a",
+        "name": "Hari",
+        "position": "DEF",
+        "skill_rating": 5.0,
+        "age": 39,
+        "available": true,
+        "role": "player",
+        "access_code": "F2954E",
+        "is_captain": true,
+        "match_history": [],
+        "ratings_received": [],
+        "notifications": [
+            {
+                "type": "captain_assignment",
+                "message": "You've been assigned as a captain! Access the draft via your player portal when it opens.",
+                "timestamp": "2025-04-03T19:58:24.018644"
+            }
+        ],
+        "inbox": [
+            {
+                "type": "captain_assignment",
+                "message": "You've been assigned as a captain! Access the draft via your player portal when it opens.",
+                "timestamp": "2025-04-03T19:58:24.018644"
+            }
+        ],
+        "players_player_ratings": []
+    }
+]

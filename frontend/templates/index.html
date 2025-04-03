@@ -3,162 +3,243 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Draft</title>
+  <title>Locker Room - Dashboard</title> {# Updated Title #}
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+   {# Link to your countdown JS #}
+   <script src="{{ url_for('static', filename='js/counter.js') }}" defer></script>
 </head>
-<script src="{{ url_for('static', filename='js/counter.js') }}"></script>
+
 <body>
-  
-  
+  {# Navbar needs 'player', 'is_admin', 'player_id' #}
+  {% include '_navbar.html' with context %}
 
   <div class="container mt-4">
 
-    <h1 class="mb-4 text-center">Draft </h1>
-    <div class="mt-4">
-      
-      <div class="container mt-4 text-center">
-        <h4 class="mb-2 text-muted"></h4>
-        <p id="nextDraftCountdown"
-           class="fw-bold display-5 text-info"
-           data-start="{{ draft_start }}"
-           data-end="{{ draft_end }}"
-           data-complete="{{ draft_state.complete|tojson }}">
-        </p>
-      </div>
-    </div>
-    <!-- Admin-only: Begin Draft -->
-    {% if is_admin and players|selectattr('is_captain')|list|length == 2 %}
-    {% if not draft_state.complete and draft_window_open %}
-    <form action="{{ url_for('draft_bp.start_draft') }}" method="POST">
-    <button class="btn btn-success">Begin Draft</button>
-    </form>
-    {% elif draft_state.complete %}
-    <button class="btn btn-secondary" disabled>Draft Complete</button>
-    {% else %}
-    <button class="btn btn-danger" disabled>Draft Locked (Tue-Sat only)</button>
-    {% endif %}
+    <h1 class="mb-4 text-center">Locker Room Dashboard</h1>
 
-      <div class="mb-3">
-        {% for player in players if player.is_captain %}
-          <div>
-            🧢 <strong>{{ player.name }}</strong>:
-            <code>{{ request.url_root }}draft/captain/{{ player.id }}</code>
+     {# Flash Messages #}
+     {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
           </div>
         {% endfor %}
-      </div>
-    {% endif %}
-
-    <!-- Admin Panel -->
-    <div class="mb-3 d-grid gap-2">
-      {% if is_admin %}
-        <a href="{{ url_for('admin.add_player') }}" class="btn btn-primary">Add Player</a>
-        <div class="d-grid mb-3">
-          <a href="{{ url_for('admin.create_match') }}" class="btn btn-outline-primary">➕ Create Match</a>
-        </div>
-        
-        <a href="{{ url_for('admin.generate_teams') }}" class="btn btn-success">Generate Balanced Teams</a>
-        <a href="{{ url_for('auth.admin_logout') }}" class="btn btn-outline-danger">Logout</a>
-      {% else %}
-        <a href="{{ url_for('auth.admin_login') }}" class="btn btn-outline-dark">Admin Login</a>
-        <a href="{{ url_for('auth.player_login') }}" class="btn btn-outline-primary">Player Login</a>
       {% endif %}
-    </div>
-    
-    
-    
-    <!-- Player List -->
-    <div class="list-group">
-        {% for player in players %}
-        {% if loop.index == 1 %}
-        <span class="badge bg-warning text-dark">🥇</span>
-        {% elif loop.index == 2 %}
-        <span class="badge bg-secondary">🥈</span>
-        {% elif loop.index == 3 %}
-        <span class="badge bg-orange">🥉</span>
-        {% endif %}
+    {% endwith %}
 
-
-        <div class="list-group-item justify-content-between">
-          <strong>{{ player.name }}</strong>
-          {% if player.is_captain %}
-            <span class="badge bg-primary ms-2">Captain</span>
-          {% endif %}
-          ({{ player.position.upper() }})
-          
-          <br>
-
-          Rating: {{ player.skill_rating }}
-          {% if player.rating_diff > 0 %}
-          <span class="text-success">↑ +{{ player.rating_diff }}</span>
-          {% elif player.rating_diff < 0 %}
-          <span class="text-danger">↓ +{{ player.rating_diff }}</span>
-          {% else %}
-          <span class="text-muted">➖ </span>
-          {% endif %}
-          
-          <br>
-          Availability:
-          <span class="badge bg-{{ 'success' if player.available else 'secondary' }}">
-            {{ 'Available' if player.available else 'Unavailable' }}
-          </span>
-
-          {% if is_admin %}
-          <form action="{{ url_for('admin.assign_captain', player_id=player.id) }}" method="POST"
-      onsubmit="console.log('Assigning captain for player {{ player.name }}')">
-
-
-              <button type="submit"
-                class="btn btn-sm {% if player.is_captain %}btn-dark{% else %}btn-outline-dark{% endif %}"
-                {% if not player.is_captain and not can_assign_more %}disabled{% endif %}>
-                {% if player.is_captain %}Unassign Captain{% else %}Assign Captain{% endif %}
-              </button>
-            </form>
-
-            <div class="dropdown mt-2">
-              <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                Share Link
-              </button>
-              <ul class="dropdown-menu">
-                <li>
-                  <a class="dropdown-item"
-                    href="https://wa.me/?text=Log%20your%20match%20stats%20at:%20{{ request.url_root ~ 'player/' ~ player.id | urlencode }}%0AYour%20access%20code:%20{{ player.access_code }}"
-                    target="_blank">Share via WhatsApp</a>
-                  <a class="dropdown-item"
-                    href="mailto:?subject=Log%20Your%207-a-side%20Stats&body=Access%20your%20page:%20{{ request.url_root ~ 'player/' ~ player.id | urlencode }}%0AYour%20code:%20{{ player.access_code }}">
-                    Share via Email</a>
-                </li>
-                <li>
-                  <button class="dropdown-item"
-                    onclick="navigator.clipboard.writeText('Access your player page: {{ request.url_root }}player/{{ player.id }}\nAccess Code: {{ player.access_code }}'); alert('Copied to clipboard!')">
-                    Copy Link + Code
-                  </button>
-                </li>
-              </ul>
-            </div>
-
-            <div class="d-flex gap-2 mt-2 flex-wrap">
-              <form method="POST" action="{{ url_for('player_bp.toggle_availability', player_id=player.id) }}">
-
-                <button class="btn btn-sm btn-outline-warning">Toggle Availability</button>
-              </form>
-
-              <a href="{{ url_for('player_bp.player_profile', target_id=player.id, from_admin=True) }}" class="btn btn-sm btn-outline-info">View Stats</a>
-
-
-              <form action="/remove_player/{{ player.id }}" method="POST">
-                <button class="btn btn-sm btn-outline-danger">Remove</button>
-              </form>
-            </div>
-          {% endif %}
+    {# --- Quick Actions --- #}
+    <div class="row mb-4">
+        <div class="col-md-6 mb-3">
+             <div class="card h-100">
+                 <div class="card-body">
+                     <h5 class="card-title">Admin Actions</h5>
+                      {% if is_admin %}
+                         <div class="d-grid gap-2">
+                            <a href="{{ url_for('admin.add_player') }}" class="btn btn-primary"><i class="bi bi-person-plus-fill"></i> Add Player</a>
+                            <a href="{{ url_for('admin.create_match') }}" class="btn btn-success"><i class="bi bi-calendar-plus"></i> Create Match</a>
+                            <a href="{{ url_for('admin.generate_teams') }}" class="btn btn-info"><i class="bi bi-people-fill"></i> Generate Balanced Teams</a>
+                            <a href="{{ url_for('home_bp.view_players') }}" class="btn btn-outline-secondary"><i class="bi bi-person-lines-fill"></i> View/Manage Players</a>
+                            <a href="{{ url_for('admin.admin_view_ratings') }}" class="btn btn-outline-secondary"><i class="bi bi-star-half"></i> View Player Ratings</a>
+                            {# Draft Admin Actions #}
+                             {% if not draft_state or not draft_state.complete %}
+                                 <form action="{{ url_for('draft_bp.start_draft') }}" method="POST" class="d-grid">
+                                      <button type="submit" class="btn btn-warning" {% if not can_assign_more %} {# Disable if < 2 captains #}
+                                         title="Requires exactly 2 captains to be assigned."
+                                      {% endif %}>
+                                         <i class="bi bi-play-circle-fill"></i> Start Captain Draft
+                                      </button>
+                                 </form>
+                             {% endif %}
+                             {% if draft_state and 'captain1_id' in draft_state %}
+                                 <a href="{{ url_for('draft_bp.draft_observer_view') }}" class="btn btn-outline-info"><i class="bi bi-eye-fill"></i> View Live Draft</a>
+                             {% endif %}
+                             <a href="{{ url_for('auth.admin_logout') }}" class="btn btn-outline-danger"><i class="bi bi-box-arrow-right"></i> Logout Admin</a>
+                         </div>
+                     {% else %}
+                         <p class="text-muted">Log in as Admin for management tools.</p>
+                         <a href="{{ url_for('auth.admin_login') }}" class="btn btn-outline-dark"><i class="bi bi-shield-lock-fill"></i> Admin Login</a>
+                     {% endif %}
+                 </div>
+             </div>
         </div>
-      {% endfor %}
-      
+         <div class="col-md-6 mb-3">
+             <div class="card h-100">
+                 <div class="card-body">
+                      <h5 class="card-title">Player Actions</h5>
+                     {% if player_id and player %} {# Check if logged in as player #}
+                         <p>Welcome back, {{ player.name }}!</p>
+                         <div class="d-grid gap-2">
+                            <a href="{{ url_for('player_bp.player_page', player_id=player_id) }}" class="btn btn-primary"><i class="bi bi-person-circle"></i> My Player Portal</a>
+                             <a href="{{ url_for('player_bp.log_performance') }}" class="btn btn-success"><i class="bi bi-graph-up-arrow"></i> Log My Performance</a>
+                             <a href="{{ url_for('home_bp.view_players') }}" class="btn btn-info"><i class="bi bi-people"></i> View/Rate Players</a>
+                             <a href="{{ url_for('player_bp.player_inbox') }}" class="btn btn-outline-secondary position-relative">
+                                 <i class="bi bi-envelope-fill"></i> My Inbox
+                                 {% if player.inbox %}
+                                    {# Simple count, could check for unread later #}
+                                    {# <span class="badge bg-danger position-absolute top-0 start-100 translate-middle rounded-pill">{{ player.inbox|length }}</span> #}
+                                 {% endif %}
+                             </a>
+                             <form action="{{ url_for('player_bp.toggle_availability') }}" method="POST" class="d-grid">
+                                <button type="submit" class="btn btn-outline-warning">
+                                    <i class="bi {{ 'bi-calendar-x' if player.available else 'bi-calendar-check' }}"></i>
+                                    {% if player.available %} Mark as Unavailable {% else %} Mark as Available {% endif %}
+                                </button>
+                              </form>
+                             <a href="{{ url_for('auth.player_logout') }}" class="btn btn-outline-danger"><i class="bi bi-box-arrow-right"></i> Logout</a>
+                         </div>
+                      {% else %}
+                          <p class="text-muted">Log in to access your player portal, log stats, and rate others.</p>
+                         <a href="{{ url_for('auth.player_login') }}" class="btn btn-outline-primary"><i class="bi bi-box-arrow-in-right"></i> Player Login</a>
+                     {% endif %}
+                 </div>
+             </div>
+        </div>
     </div>
-  </div>
 
-  <!-- Bootstrap JS (for dropdowns, etc.) -->
-  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js"></script>
-  
+    {# --- Draft Status --- #}
+    <div class="card mb-4">
+        <div class="card-header">
+            Draft Status
+        </div>
+        <div class="card-body">
+            {% if draft_state and draft_state.complete %}
+                <p class="text-success"><i class="bi bi-check-circle-fill"></i> The last draft is complete.</p>
+                <a href="{{ url_for('draft_bp.draft_observer_view') }}" class="btn btn-sm btn-outline-info">View Final Teams</a>
+            {% elif draft_state and 'captain1_id' in draft_state %}
+                 <p class="text-warning"><i class="bi bi-hourglass-split"></i> Draft in progress!</p>
+                 {% if is_admin %}
+                    <a href="{{ url_for('draft_bp.draft_observer_view') }}" class="btn btn-sm btn-outline-info">View Live Draft</a>
+                 {% elif player and player.is_captain and player.id in [draft_state.captain1_id, draft_state.captain2_id] %}
+                      <a href="{{ url_for('player_bp.player_page', player_id=player.id) }}#draftPanel" class="btn btn-sm btn-warning">Go to Draft Panel</a>
+                 {% else %}
+                     <a href="{{ url_for('draft_bp.draft_observer_view') }}" class="btn btn-sm btn-outline-info">Observe Draft</a>
+                 {% endif %}
+            {% else %}
+                 <p class="text-muted"><i class="bi bi-calendar-week"></i> No active draft.</p>
+            {% endif %}
+             <hr>
+             <p><strong>Draft Window:</strong> {{ next_draft_start.strftime('%a, %b %d %H:%M') }} to {{ next_draft_end.strftime('%a, %b %d %H:%M') }}</p>
+             {# Add countdown timer element #}
+              <p>
+                 <strong>Next Draft Opens In:</strong>
+                 <span id="nextDraftCountdown" class="fw-bold text-info"
+                       data-start="{{ draft_start }}"
+                       data-end="{{ draft_end }}">
+                    Loading countdown...
+                 </span>
+              </p>
+        </div>
+    </div>
+
+
+    {# --- Player List Snippet (Admin View Only) --- #}
+    {% if is_admin %}
+        <h3 class="mb-3">Player Management Overview</h3>
+        <p><a href="{{ url_for('home_bp.view_players') }}">Go to full filterable player list &raquo;</a></p>
+        <div class="list-group mb-4">
+          {% for p in players[:10] %} {# Show first 10 for overview #}
+          <div class="list-group-item d-flex justify-content-between align-items-center flex-wrap">
+            <div>
+              <strong>{{ p.name }}</strong> ({{ p.position }})
+              {% if p.is_captain %}
+                <span class="badge bg-primary"><i class="bi bi-person-check-fill"></i> Captain</span>
+              {% endif %}
+              <br>
+              <small>Rating: {{ p.skill_rating }} | Code: {{ p.access_code }} | Avail:
+                 <span class="fw-bold text-{{ 'success' if p.available else 'secondary' }}">
+                   {{ 'Yes' if p.available else 'No' }}
+                 </span>
+               </small>
+            </div>
+
+            <div class="d-flex gap-1 mt-2 mt-sm-0 flex-wrap"> {# Action Buttons #}
+               {# Assign Captain Button #}
+                <form action="{{ url_for('admin.assign_captain', player_id=p.id) }}" method="POST" class="d-inline">
+                    <button type="submit"
+                        class="btn btn-sm {% if p.is_captain %}btn-dark{% elif not can_assign_more %}btn-secondary disabled{% else %}btn-outline-dark{% endif %}"
+                        {% if not p.is_captain and not can_assign_more %}disabled title="Max 2 captains assigned"{% endif %}>
+                        <i class="bi {{ 'bi-person-dash-fill' if p.is_captain else 'bi-person-plus-fill' }}"></i> {% if p.is_captain %}Unassign{% else %}Assign{% endif %} Cap
+                    </button>
+                </form>
+
+                {# View Profile Link (points to player view) #}
+                <a href="{{ url_for('player_bp.player_profile', target_id=p.id) }}"
+                   class="btn btn-sm btn-outline-info" title="View Profile/Stats"><i class="bi bi-eye"></i> Profile</a>
+
+                {# Remove Player - Modal Trigger #}
+                <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal"
+                        data-bs-target="#confirmRemoveModal-{{ p.id }}" title="Remove Player">
+                    <i class="bi bi-trash"></i> Remove
+                </button>
+
+                 {# Share Dropdown - Copied from original #}
+                 <div class="dropdown d-inline">
+                    <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" title="Share Login Link">
+                      <i class="bi bi-share"></i> Share
+                    </button>
+                    <ul class="dropdown-menu">
+                      <li>
+                        <a class="dropdown-item"
+                          href="https://wa.me/?text=Log%20your%20match%20stats%20at:%20{{ request.url_root.replace('http://', 'https://') ~ 'player_login' | urlencode }}%0AUse%20Name:%20{{ p.name | urlencode }}%0AAccess%20code:%20{{ p.access_code }}"
+                          target="_blank"><i class="bi bi-whatsapp"></i> WhatsApp</a>
+                      </li>
+                       <li>
+                        <a class="dropdown-item"
+                          href="mailto:?subject=Log%20Your%207-a-side%20Stats&body=Access%20your%20player%20login%20page:%20{{ request.url_root.replace('http://', 'https://') ~ 'player_login' | urlencode }}%0A%0AYour%20Name:%20{{ p.name | urlencode }}%0AYour%20Access%20Code:%20{{ p.access_code }}">
+                          <i class="bi bi-envelope"></i> Email</a>
+                       </li>
+                      <li><hr class="dropdown-divider"></li>
+                      <li>
+                        <button class="dropdown-item"
+                          onclick="navigator.clipboard.writeText('Locker Room Login:\nPage: {{ request.url_root.replace('http://', 'https://') }}player_login\nName: {{ p.name }}\nAccess Code: {{ p.access_code }}'); alert('Login info copied to clipboard!')">
+                          <i class="bi bi-clipboard"></i> Copy Details
+                        </button>
+                      </li>
+                    </ul>
+                 </div>
+
+            </div> {# End Action Buttons #}
+          </div> {# End list-group-item #}
+
+          <!-- Confirm Removal Modal -->
+          <div class="modal fade" id="confirmRemoveModal-{{ p.id }}" tabindex="-1"
+               aria-labelledby="confirmRemoveLabel-{{ p.id }}" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="confirmRemoveLabel-{{ p.id }}">Confirm Removal</h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                  Are you sure you want to remove <strong>{{ p.name }}</strong>? This action cannot be undone.
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                  <form method="POST" action="{{ url_for('admin.remove_player', player_id=p.id) }}" class="d-inline">
+                    <button type="submit" class="btn btn-danger">Yes, Remove Player</button>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+          {% else %}
+              <div class="alert alert-info">No players found. Add players using the Admin Actions.</div>
+          {% endfor %}
+           {% if players|length > 10 %}
+                <div class="list-group-item text-center">
+                     <a href="{{ url_for('home_bp.view_players') }}">View all {{ players|length }} players...</a>
+                </div>
+           {% endif %}
+        </div>
+    {% endif %} {# End Admin Only Player List Snippet #}
+
+  </div> {# End Container #}
+
+  {# Bootstrap JS #}
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
 </body>
 </html>

@@ -4,83 +4,114 @@
   <meta charset="UTF-8">
   <title>All Players</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link
-    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
-    rel="stylesheet"
-  >
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css"> {# Optional: for icons #}
 </head>
 <body>
 
-  <!-- 🔔 Navbar -->
-  {% include '_navbar.html' %}
-  
-  <div class="container mt-4">
-    <h2 class="mb-4 text-center">All Players</h2>
+  {# Navbar: Needs 'player' object (current viewer), 'is_admin', 'player_id' #}
+  {% include '_navbar.html' with context %}
 
-    <!-- 🔍 Search & Filter Form -->
-    <form method="GET" class="row g-2 mb-4">
+  <div class="container mt-4">
+    <h2 class="mb-4 text-center">Player List</h2>
+
+     {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <!-- Search & Filter Form -->
+    <form method="GET" action="{{ url_for('home_bp.view_players') }}" class="row g-3 mb-4 align-items-end bg-light p-3 rounded border">
       <div class="col-md-4">
-        <input type="text" name="search" class="form-control" placeholder="Search by name" value="{{ request.args.get('search', '') }}">
+         <label for="search" class="form-label">Search Name</label>
+        <input type="text" name="search" id="search" class="form-control" placeholder="Enter name..." value="{{ search_term }}">
       </div>
       <div class="col-md-3">
-        <select name="position" class="form-select">
+         <label for="position" class="form-label">Position</label>
+        <select name="position" id="position" class="form-select">
           <option value="">All Positions</option>
-          <option value="GK" {% if request.args.get('position') == 'GK' %}selected{% endif %}>GK</option>
-          <option value="DEF" {% if request.args.get('position') == 'DEF' %}selected{% endif %}>DEF</option>
-          <option value="MID" {% if request.args.get('position') == 'MID' %}selected{% endif %}>MID</option>
-          <option value="FWD" {% if request.args.get('position') == 'FWD' %}selected{% endif %}>FWD</option>
+          {# Assuming common positions #}
+          <option value="GK" {% if selected_position == 'GK' %}selected{% endif %}>GK</option>
+          <option value="DEF" {% if selected_position == 'DEF' %}selected{% endif %}>DEF</option>
+          <option value="MID" {% if selected_position == 'MID' %}selected{% endif %}>MID</option>
+          <option value="ATT" {% if selected_position == 'ATT' %}selected{% endif %}>ATT</option>
+           <option value="FWD" {% if selected_position == 'FWD' %}selected{% endif %}>FWD</option> {# Keep FWD if used #}
         </select>
       </div>
       <div class="col-md-3">
-        <select name="availability" class="form-select">
+         <label for="availability" class="form-label">Availability</label>
+        <select name="availability" id="availability" class="form-select">
           <option value="">All</option>
-          <option value="available" {% if request.args.get('availability') == 'available' %}selected{% endif %}>Available</option>
-          <option value="unavailable" {% if request.args.get('availability') == 'unavailable' %}selected{% endif %}>Unavailable</option>
+          <option value="available" {% if selected_availability == 'available' %}selected{% endif %}>Available</option>
+          <option value="unavailable" {% if selected_availability == 'unavailable' %}selected{% endif %}>Unavailable</option>
         </select>
       </div>
       <div class="col-md-2 d-grid">
-        <button type="submit" class="btn btn-primary">Filter</button>
+        <button type="submit" class="btn btn-primary"><i class="bi bi-funnel-fill"></i> Filter</button> {# Added icon #}
       </div>
     </form>
 
-    <!-- 👥 Player List -->
+    <!-- Player List -->
     <div class="list-group">
-      {% for player in players %}
-         <a href="{% if is_admin and not player_id %}{{ url_for('home_bp.view_player_stats', player_id=player.id) }}
-                  {% else %}{{ url_for('player_bp.player_profile', target_id=player.id) }}
-                  {% endif %}"
-            class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
-            <div>
-            <strong>{{ player.name }}</strong>
-            {% if player.is_captain %}
-              <span class="badge bg-primary ms-1">🧢 Captain</span>
-            {% endif %}
-            <br>
-            Position: {{ player.position.upper() }}<br>
-            Rating: {{ player.skill_rating }}
-          </div>
-          <div>
-            <span class="badge bg-{{ 'success' if player.available else 'secondary' }}">
-              {{ 'Available' if player.available else 'Unavailable' }}
-            </span>
-          </div>
-        </a>
+      {% for p in players %}
+         {# Link destination depends on who is viewing #}
+         {% set profile_url = url_for('player_bp.player_profile', target_id=p.id) %}
+         {# Admins might have a different detailed view eventually, but profile is fine for now #}
+         {# {% if is_admin %}
+              {% set profile_url = url_for('admin.view_detailed_stats', player_id=p.id) %}
+         {% endif %} #}
+
+         <a href="{{ profile_url }}"
+            class="list-group-item list-group-item-action d-flex flex-column flex-sm-row justify-content-between align-items-sm-center">
+
+            <div class="mb-2 mb-sm-0"> {# Player Info #}
+              <strong>{{ p.name }}</strong>
+              {% if p.is_captain %}
+                <span class="badge bg-primary ms-1">Captain <i class="bi bi-person-check-fill"></i></span>
+              {% endif %}
+              <br>
+              <small class="text-muted">
+                  Position: {{ p.position }} | Rating: {{ p.skill_rating }}
+                  {% if p.rating_diff > 0 %}
+                      <span class="text-success">(↑ {{ p.rating_diff }})</span>
+                  {% elif p.rating_diff < 0 %}
+                      <span class="text-danger">(↓ {{ p.rating_diff }})</span>
+                  {% endif %}
+               </small>
+            </div>
+
+            <div class="d-flex gap-2 align-items-center"> {# Status & Actions #}
+              <span class="badge bg-{{ 'success' if p.available else 'secondary' }}">
+                <i class="bi {{ 'bi-check-circle-fill' if p.available else 'bi-x-circle-fill' }}"></i>
+                {{ 'Available' if p.available else 'Unavailable' }}
+              </span>
+               {# Maybe add a quick rate button here if viewer is player and conditions met? #}
+               {# Example: {% if player and player.id != p.id %} ... rate button ... {% endif %} #}
+            </div>
+         </a>
       {% else %}
-        <div class="alert alert-warning text-center">No players found.</div>
+        <div class="alert alert-warning text-center">No players found matching your criteria.</div>
       {% endfor %}
     </div>
 
-    <!-- 🔙 Back Button -->
-
+    <!-- Back Button -->
     <div class="mt-4 text-center">
       {% if is_admin %}
-        <a href="{{ url_for('home_bp.index') }}" class="btn btn-secondary">Back to Admin Dashboard</a>
+        <a href="{{ url_for('home_bp.index') }}" class="btn btn-secondary"><i class="bi bi-arrow-left-circle"></i> Back to Admin Dashboard</a>
       {% elif player_id %}
-        <a href="{{ url_for('player_bp.player_page', player_id=player_id) }}" class="btn btn-secondary">Back to Player Portal</a>
+        <a href="{{ url_for('player_bp.player_page', player_id=player_id) }}" class="btn btn-secondary"><i class="bi bi-arrow-left-circle"></i> Back to Player Portal</a>
+      {% else %}
+         <a href="{{ url_for('home_bp.index') }}" class="btn btn-secondary"><i class="bi bi-arrow-left-circle"></i> Back to Home</a>
       {% endif %}
     </div>
-  
+  </div>
 
-
+ <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

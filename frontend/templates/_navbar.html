@@ -1,59 +1,80 @@
-<nav class="navbar navbar-light bg-dark px-3 justify-content-between">
-    <div class="dropdown">
-      <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
-        ☰
-      </button>
-      <ul class="dropdown-menu">
-        {% if is_admin %}
-          <li><a class="dropdown-item" href="{{ url_for('home_bp.index') }}">Admin Dashboard</a></li>
-        {% endif %}
-        {% if player %}
-          <li><a class="dropdown-item" href="{{ url_for('player_bp.player_page', player_id=player.id) }}">Player Portal</a></li>
-          <li>
-            <form action="{{ url_for('auth.player_logout') }}" method="GET" class="px-3">
-              <button class="dropdown-item">Logout</button>
-            </form>
-          </li>
-        {% endif %}
+{# frontend/templates/_navbar.html #}
+{# Expects context variables: 'is_admin', 'player', 'player_id' #}
+<nav class="navbar navbar-expand-sm navbar-dark bg-dark px-3 sticky-top shadow-sm">
+  <div class="container-fluid">
+    {# Brand #}
+    <a class="navbar-brand" href="{{ url_for('home_bp.index') }}">
+      <i class="bi bi-shield-shaded"></i> Locker Room
+    </a>
+
+    {# Navbar Toggler for small screens #}
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar" aria-controls="mainNavbar" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    {# Navbar Links - Collapsible #}
+    <div class="collapse navbar-collapse" id="mainNavbar">
+      <ul class="navbar-nav me-auto mb-2 mb-sm-0">
+        {# Add common links here if needed later #}
+        <li class="nav-item">
+          <a class="nav-link {% if request.endpoint == 'home_bp.index' %}active{% endif %}" href="{{ url_for('home_bp.index') }}">Dashboard</a>
+        </li>
+         <li class="nav-item">
+           <a class="nav-link {% if request.endpoint == 'home_bp.view_players' %}active{% endif %}" href="{{ url_for('home_bp.view_players') }}">Players</a>
+        </li>
       </ul>
-    </div>
-    <span class="navbar-brand mb-0 h4">7-A-Side</span>
-    <div class="d-flex align-items-center gap-2">
-      {% if player %}
-        <a href="{{ url_for('player_bp.player_inbox', player_id=player.id) }}" class="btn btn-outline-info">Inbox</a>
-        <div class="dropdown">
-          <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
-            {% if player.notifications %}
-              <span class="badge bg-danger">{{ player.notifications|length }}</span>
+
+      {# Right-aligned items #}
+      <div class="d-flex align-items-center gap-2">
+
+        {% if player %} {# Logged in as Player #}
+          {# Inbox Modal Trigger #}
+          <button type="button" class="btn btn-outline-info position-relative me-2" data-bs-toggle="modal" data-bs-target="#inboxModal" title="View Inbox">
+             <i class="bi bi-envelope-fill"></i>
+            {% if player.notifications and player.notifications|length > 0 %} {# Check length explicitly #}
+              <span class="badge bg-danger position-absolute top-0 start-100 translate-middle rounded-pill" style="font-size: 0.7em;">
+                {{ player.notifications|length }}
+                <span class="visually-hidden">unread messages</span>
+              </span>
             {% endif %}
           </button>
-          <ul class="dropdown-menu dropdown-menu-end p-2" style="max-height: 300px; overflow-y: auto; max-width: 350px;">
-            {% if player.notifications %}
-              {% for note in player.notifications %}
-                <li class="dropdown-item text-wrap">
-                  {% if note.type == "rating_received" %}
-                    ⭐ {{ note.rating }}/10 from <em>{{ note.from }}</em>
-                    {% if note.comment %}
-                      <div class="text-muted">"{{ note.comment|truncate(60, True) }}"</div>
-                    {% endif %}
-                  {% elif note.message %}
-                    <div class="text-muted">{{ note.message|truncate(60, True) }}</div>
-                  {% endif %}
-                  <div class="small text-muted mt-1">{{ note.timestamp }}</div>
-                </li>
-                <li><hr class="dropdown-divider"></li>
-              {% endfor %}
-              <li class="text-center">
-                <form action="{{ url_for('player_bp.clear_notifications', player_id=player.id) }}" method="POST">
-                  <button class="btn btn-sm btn-outline-danger">Clear Notifications</button>
-                </form>
-              </li>
-            {% else %}
-              <li class="dropdown-item text-muted">No notifications yet</li>
-            {% endif %}
-          </ul>
-        </div>
-      {% endif %}
-    </div>
-  </nav>
-  
+
+           {# Player Dropdown #}
+           <div class="dropdown">
+                <button class="btn btn-outline-light dropdown-toggle" type="button" id="playerDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="bi bi-person-circle"></i> {{ player.name }}
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="playerDropdown">
+                    <li><a class="dropdown-item" href="{{ url_for('player_bp.player_page', player_id=player.id) }}"><i class="bi bi-speedometer2"></i> My Portal</a></li>
+                     <li><a class="dropdown-item" href="{{ url_for('player_bp.player_inbox') }}"><i class="bi bi-inbox-fill"></i> View Inbox Page</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li>
+                        <form action="{{ url_for('auth.player_logout') }}" method="GET" class="px-0"> {# Use GET for logout link #}
+                           <button type="submit" class="dropdown-item text-danger"><i class="bi bi-box-arrow-right"></i> Logout</button>
+                        </form>
+                    </li>
+                </ul>
+           </div>
+
+        {% elif is_admin %} {# Logged in as Admin #}
+             <span class="navbar-text text-warning me-2">
+                 <i class="bi bi-shield-lock-fill"></i> Admin Mode
+             </span>
+             <form action="{{ url_for('auth.admin_logout') }}" method="GET" class="d-inline">
+                 <button class="btn btn-outline-danger" type="submit"><i class="bi bi-box-arrow-right"></i> Logout Admin</button>
+             </form>
+
+        {% else %} {# Not logged in #}
+             <a href="{{ url_for('auth.player_login') }}" class="btn btn-outline-primary me-2">Player Login</a>
+             <a href="{{ url_for('auth.admin_login') }}" class="btn btn-outline-secondary">Admin Login</a>
+        {% endif %}
+      </div> {# End right-aligned items #}
+
+    </div> {# End Collapsible Content #}
+  </div> {# End Container-fluid #}
+</nav>
+
+{# Include Modal Partial only if a player is logged in #}
+{% if player %}
+  {% include '_inbox_modal.html' %} {# Assumes _inbox_modal uses 'player' variable #}
+{% endif %}

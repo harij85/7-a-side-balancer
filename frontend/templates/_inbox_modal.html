@@ -1,0 +1,43 @@
+<div class="modal fade" id="inboxModal" tabindex="-1" aria-labelledby="inboxModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Inbox</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body" style="max-height: 400px; overflow-y: auto;">
+          {% if player.notifications %}
+            <ul class="list-group">
+              {% for note in player.notifications %}
+                <li class="list-group-item">
+                  {% if note.type == "rating_received" %}
+                    ⭐ {{ note.rating }}/10 from <strong>{{ note.from }}</strong>
+                    {% if note.comment %}
+                      <div class="text-muted">"{{ note.comment }}"</div>
+                    {% endif %}
+                  {% elif note.type == "players_player_rating" %}
+                    🙌 Players' Player rating: {{ note.rating }}/5 from <strong>{{ note.from }}</strong>
+                    {% if note.comment %}
+                      <div class="text-muted">"{{ note.comment }}"</div>
+                    {% endif %}
+                  {% else %}
+                    <div>{{ note.message }}</div>
+                  {% endif %}
+                  <div class="small text-muted mt-1">{{ note.timestamp }}</div>
+                </li>
+              {% endfor %}
+            </ul>
+          {% else %}
+            <p class="text-muted">No notifications yet.</p>
+          {% endif %}
+        </div>
+        <div class="modal-footer">
+          <form action="{{ url_for('player_bp.clear_notifications', player_id=player.id) }}" method="POST">
+            <button type="submit" class="btn btn-outline-danger">Clear Notifications</button>
+          </form>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
