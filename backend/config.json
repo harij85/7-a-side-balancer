@@ -1,3 +1,4 @@
 {
-  "ratings_enabled": true
+  "ratings_enabled": true,
+  "public_player_visibility": false
 }

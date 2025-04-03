@@ -110,3 +110,7 @@ def get_player(players, player_id):
             return p
     print(f"[DEBUG] get_player: Player ID '{player_id}' not found in list.")
     return None
+
+def is_public_visibility_enabled():
+    config = load_config()
+    return config.get('public_visibility_enabled', False)
