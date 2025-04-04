@@ -3,6 +3,9 @@ from flask import Blueprint, render_template, session, request, redirect, url_fo
 from backend.utils.data_manager import load_players, load_draft_state, get_player, is_public_visibility_enabled  # Import helper
 from backend.utils.draft_timer import get_draft_window, is_draft_window_open
 from backend.models.player import Player # Import Player model
+from backend.utils.match_manager import load_matches
+
+
 
 home_bp = Blueprint('home_bp', __name__)
 
@@ -32,6 +35,16 @@ def index():
     # Determine captain assignment possibility
     captain_count = sum(1 for p in players if p.is_captain)
     can_assign_more_captains = captain_count < 2
+    
+    matches = load_matches()
+    
+    draft_ready_match = next(
+        (m for m in matches if len(getattr(m, 'captains', [])) == 2 and not getattr(m, 'darft_created', False)),
+        None 
+    )
+    
+    manually_selected_captains = [p for p in players if p.is_captain]
+    is_sandbox_draft_possible = len(manually_selected_captains) == 2 and not draft_ready_match
 
     return render_template(
         'index.html',
@@ -45,7 +58,9 @@ def index():
         draft_start=draft_start.isoformat(), # Pass as ISO string for JS
         draft_end=draft_end.isoformat(),
         next_draft_start=draft_start, # Pass datetime object for display
-        next_draft_end=draft_end
+        next_draft_end=draft_end,
+        draft_ready_match=draft_ready_match,
+        is_sandbox_draft_possible=is_sandbox_draft_possible
     )
 
 @home_bp.route('/players')  # Changed route to '/players' for clarity

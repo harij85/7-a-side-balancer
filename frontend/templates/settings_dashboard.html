@@ -1,0 +1,104 @@
+{% extends 'base.html' %}
+
+{% block title %}Admin Settings{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-4">⚙️ Settings Dashboard</h2>
+
+    <div class="alert alert-info">
+        This panel allows team admins to manage matches, reset drafts, and control backend configurations.
+    </div>
+
+    <hr class="my-5">
+
+    <form method="POST" action="{{ url_for('settings_bp.toggle_sandbox') }}">
+        <div class="form-check form-switch mb-3">
+          <input class="form-check-input" type="checkbox" id="enableSandbox" name="enable_sandbox"
+                 {% if config.sandbox_enabled %}checked{% endif %}
+                 onchange="this.form.submit()">
+          <label class="form-check-label" for="enableSandbox">
+            Enable Sandbox Draft Mode (no match required)
+          </label>
+        </div>
+      </form>
+
+      {% if session.get('is_admin') %}
+  <hr>
+  <h4 class="text-danger mt-4">Danger Zone (Sudo Admin Only)</h4>
+  <div class="alert alert-warning">
+    This will reset all match data, draft state, and config. Players will remain untouched.
+  </div>
+  <form action="{{ url_for('settings_bp.reset_app_data') }}" method="POST"
+        onsubmit="return confirm('Are you sure you want to reset all app data? This cannot be undone.')">
+      <button type="submit" class="btn btn-danger">
+        <i class="bi bi-exclamation-triangle-fill"></i> Reset App Data
+      </button>
+  </form>
+{% endif %}
+
+
+    <h4>Upcoming Matches</h4>
+    <table class="table table-striped table-bordered align-middle">
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Time</th>
+                <th>Location</th>
+                <th>Teams</th>
+                <th>Players/Team</th>
+                <th>Selection Method</th>
+                <th>Draft Created</th>
+                <th>Captains</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for match in matches %}
+                <tr>
+                    <td>{{ match.date }}</td>
+                    <td>{{ match.start_time }}</td>
+                    <td>{{ match.location }}</td>
+                    <td>{{ match.num_teams }}</td>
+                    <td>{{ match.players_per_team }}</td>
+                    <td>{{ match.team_selection_method|capitalize }}</td>
+                    <td>
+                        {% if match.draft_created %}
+                            ✅
+                        {% else %}
+                            ❌
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if match.captains and match.captains|length == 2 %}
+                            {% for captain_id in match.captains %}
+                                {% set captain = players | selectattr("id", "equalto", captain_id) | first %}
+                                <span class="badge bg-primary">{{ captain.name }}</span>
+                            {% endfor %}
+                        {% else %}
+                            <span class="text-muted">Not assigned</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <form action="{{ url_for('settings_bp.reset_draft', match_id=match.match_id) }}" method="POST" class="d-inline">
+                            <button type="submit" class="btn btn-sm btn-danger"
+                                onclick="return confirm('Are you sure you want to reset this draft?')">
+                                Reset Draft
+                            </button>
+                        </form>
+                        <!-- Future Admin Tools -->
+                        <!--
+                        <a href="#" class="btn btn-sm btn-secondary disabled">Force Captain</a>
+                        <a href="#" class="btn btn-sm btn-warning disabled">Clear Match</a>
+                        -->
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    
+
+
+</div>
+{% endblock %}

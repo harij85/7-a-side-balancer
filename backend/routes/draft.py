@@ -134,9 +134,10 @@ def draft_observer_view():
 # @draft_bp.route('/draft/captain/<captain_id>') ... REMOVED ...
 
 
-@draft_bp.route('/draft/pick/<player_id>', methods=['POST'])
-def draft_pick(player_id):
+@draft_bp.route('/draft/pick', methods=['POST'])
+def draft_pick():
     # Check if logged in as a player
+    player_id = request.form.get('player_id')
     captain_id_session = session.get('player_id')
     if not captain_id_session:
         flash("You must be logged in as a player (captain) to make a pick.", "warning")

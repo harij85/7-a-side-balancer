@@ -1,1 +1,436 @@
-[]
+[
+    {
+        "id": "8df06e38-2793-4504-bc81-bb51532ee570",
+        "name": "Antonio",
+        "position": "GK",
+        "skill_rating": 7.41,
+        "age": 27,
+        "available": true,
+        "role": "player",
+        "preferred_foot": "Right",
+        "preferred_days": "Weekends",
+        "preferred_times": "Evening",
+        "preferred_locations": "Local Pitch",
+        "access_code": "bfc20884",
+        "is_captain": true,
+        "match_history": [],
+        "ratings_received": [],
+        "notifications": [
+            {
+                "type": "captain_assignment",
+                "message": "You've been assigned as a captain! Access the draft via your player portal when it opens.",
+                "timestamp": "2025-04-05T00:48:46.493427"
+            }
+        ],
+        "inbox": [
+            {
+                "type": "captain_assignment",
+                "message": "You've been assigned as a captain! Access the draft via your player portal when it opens.",
+                "timestamp": "2025-04-04T18:45:25.449087"
+            },
+            {
+                "type": "draft_start",
+                "message": "The draft has started! It's your turn to pick.",
+                "timestamp": "2025-04-04T18:45:33.938372"
+            },
+            {
+                "type": "captain_assignment",
+                "message": "You've been assigned as a captain! Access the draft via your player portal when it opens.",
+                "timestamp": "2025-04-04T23:16:50.054370"
+            },
+            {
+                "type": "captain_assignment",
+                "message": "You've been assigned as a captain! Access the draft via your player portal when it opens.",
+                "timestamp": "2025-04-04T23:44:28.836190"
+            },
+            {
+                "type": "captain_assignment",
+                "message": "You've been assigned as a captain! Access the draft via your player portal when it opens.",
+                "timestamp": "2025-04-05T00:29:48.321282"
+            },
+            {
+                "type": "captain_assignment",
+                "message": "You've been assigned as a captain! Access the draft via your player portal when it opens.",
+                "timestamp": "2025-04-05T00:35:26.567332"
+            },
+            {
+                "type": "captain_assignment",
+                "message": "You've been assigned as a captain! Access the draft via your player portal when it opens.",
+                "timestamp": "2025-04-05T00:39:56.054952"
+            },
+            {
+                "type": "captain_assignment",
+                "message": "You've been assigned as a captain! Access the draft via your player portal when it opens.",
+                "timestamp": "2025-04-05T00:40:58.856030"
+            },
+            {
+                "type": "captain_assignment",
+                "message": "You've been assigned as a captain! Access the draft via your player portal when it opens.",
+                "timestamp": "2025-04-05T00:48:46.493427"
+            }
+        ],
+        "players_player_ratings": []
+    },
+    {
+        "id": "fe1b4deb-4717-4113-ba5b-349f7c4d4b4e",
+        "name": "Amber",
+        "position": "GK",
+        "skill_rating": 6.52,
+        "age": 19,
+        "available": true,
+        "role": "player",
+        "preferred_foot": "Right",
+        "preferred_days": "Weekends",
+        "preferred_times": "Evening",
+        "preferred_locations": "Local Pitch",
+        "access_code": "a79f81ee",
+        "is_captain": true,
+        "match_history": [],
+        "ratings_received": [],
+        "notifications": [
+            {
+                "type": "captain_assignment",
+                "message": "You've been assigned as a captain! Access the draft via your player portal when it opens.",
+                "timestamp": "2025-04-05T00:48:46.493462"
+            }
+        ],
+        "inbox": [
+            {
+                "type": "captain_assignment",
+                "message": "You've been assigned as a captain! Access the draft via your player portal when it opens.",
+                "timestamp": "2025-04-04T18:45:25.449110"
+            },
+            {
+                "type": "draft_start",
+                "message": "The draft has started! Waiting for the first pick.",
+                "timestamp": "2025-04-04T18:45:33.938380"
+            },
+            {
+                "type": "captain_assignment",
+                "message": "You've been assigned as a captain! Access the draft via your player portal when it opens.",
+                "timestamp": "2025-04-04T23:41:31.922724"
+            },
+            {
+                "type": "captain_assignment",
+                "message": "You've been assigned as a captain! Access the draft via your player portal when it opens.",
+                "timestamp": "2025-04-04T23:44:28.836211"
+            },
+            {
+                "type": "captain_assignment",
+                "message": "You've been assigned as a captain! Access the draft via your player portal when it opens.",
+                "timestamp": "2025-04-05T00:29:48.321333"
+            },
+            {
+                "type": "captain_assignment",
+                "message": "You've been assigned as a captain! Access the draft via your player portal when it opens.",
+                "timestamp": "2025-04-05T00:35:26.567356"
+            },
+            {
+                "type": "captain_assignment",
+                "message": "You've been assigned as a captain! Access the draft via your player portal when it opens.",
+                "timestamp": "2025-04-05T00:39:56.054970"
+            },
+            {
+                "type": "captain_assignment",
+                "message": "You've been assigned as a captain! Access the draft via your player portal when it opens.",
+                "timestamp": "2025-04-05T00:48:46.493462"
+            }
+        ],
+        "players_player_ratings": []
+    },
+    {
+        "id": "df1460df-7fa5-4f7b-9882-032e99b0c709",
+        "name": "Bailey",
+        "position": "DEF",
+        "skill_rating": 5.25,
+        "age": 28,
+        "available": true,
+        "role": "player",
+        "preferred_foot": "Left",
+        "preferred_days": "Weekends",
+        "preferred_times": "Evening",
+        "preferred_locations": "Local Pitch",
+        "access_code": "d1187509",
+        "is_captain": false,
+        "match_history": [],
+        "ratings_received": [],
+        "notifications": [],
+        "inbox": [],
+        "players_player_ratings": []
+    },
+    {
+        "id": "32972b33-edf3-4369-bb65-1ad034a4ae99",
+        "name": "Jennifer",
+        "position": "DEF",
+        "skill_rating": 6.01,
+        "age": 31,
+        "available": true,
+        "role": "player",
+        "preferred_foot": "Right",
+        "preferred_days": "Weekends",
+        "preferred_times": "Evening",
+        "preferred_locations": "Local Pitch",
+        "access_code": "af794119",
+        "is_captain": false,
+        "match_history": [],
+        "ratings_received": [],
+        "notifications": [],
+        "inbox": [
+            {
+                "type": "captain_assignment",
+                "message": "You've been assigned as a captain! Access the draft via your player portal when it opens.",
+                "timestamp": "2025-04-04T23:15:54.784076"
+            },
+            {
+                "type": "captain_assignment",
+                "message": "You've been assigned as a captain! Access the draft via your player portal when it opens.",
+                "timestamp": "2025-04-04T23:37:02.923085"
+            }
+        ],
+        "players_player_ratings": []
+    },
+    {
+        "id": "c0bf4895-21c2-458e-a6d1-d8a08218dbd4",
+        "name": "Michael",
+        "position": "DEF",
+        "skill_rating": 4.6,
+        "age": 21,
+        "available": true,
+        "role": "player",
+        "preferred_foot": "Right",
+        "preferred_days": "Weekends",
+        "preferred_times": "Evening",
+        "preferred_locations": "Local Pitch",
+        "access_code": "268aa2e2",
+        "is_captain": false,
+        "match_history": [],
+        "ratings_received": [],
+        "notifications": [],
+        "inbox": [
+            {
+                "type": "captain_assignment",
+                "message": "You've been assigned as a captain! Access the draft via your player portal when it opens.",
+                "timestamp": "2025-04-04T23:15:54.784099"
+            }
+        ],
+        "players_player_ratings": []
+    },
+    {
+        "id": "b57dcf7f-fb74-460a-8aab-0eebd1913c27",
+        "name": "Tonya",
+        "position": "DEF",
+        "skill_rating": 5.78,
+        "age": 32,
+        "available": true,
+        "role": "player",
+        "preferred_foot": "Right",
+        "preferred_days": "Weekends",
+        "preferred_times": "Evening",
+        "preferred_locations": "Local Pitch",
+        "access_code": "de6e846b",
+        "is_captain": false,
+        "match_history": [],
+        "ratings_received": [],
+        "notifications": [],
+        "inbox": [],
+        "players_player_ratings": []
+    },
+    {
+        "id": "27ce765b-9280-4c7b-b74d-573f09ecf27b",
+        "name": "Vanessa",
+        "position": "MID",
+        "skill_rating": 5.58,
+        "age": 27,
+        "available": true,
+        "role": "player",
+        "preferred_foot": "Left",
+        "preferred_days": "Weekends",
+        "preferred_times": "Evening",
+        "preferred_locations": "Local Pitch",
+        "access_code": "e4192240",
+        "is_captain": false,
+        "match_history": [],
+        "ratings_received": [],
+        "notifications": [],
+        "inbox": [
+            {
+                "type": "captain_assignment",
+                "message": "You've been assigned as a captain! Access the draft via your player portal when it opens.",
+                "timestamp": "2025-04-04T21:00:45.318476"
+            },
+            {
+                "type": "draft_start",
+                "message": "The draft has started! Waiting for the first pick.",
+                "timestamp": "2025-04-04T21:00:57.552915"
+            }
+        ],
+        "players_player_ratings": []
+    },
+    {
+        "id": "89b2878f-d63e-4c93-afd4-582a10869c0c",
+        "name": "Susan",
+        "position": "MID",
+        "skill_rating": 6.36,
+        "age": 27,
+        "available": true,
+        "role": "player",
+        "preferred_foot": "Left",
+        "preferred_days": "Weekends",
+        "preferred_times": "Evening",
+        "preferred_locations": "Local Pitch",
+        "access_code": "48e6755e",
+        "is_captain": false,
+        "match_history": [],
+        "ratings_received": [],
+        "notifications": [],
+        "inbox": [
+            {
+                "type": "captain_assignment",
+                "message": "You've been assigned as a captain! Access the draft via your player portal when it opens.",
+                "timestamp": "2025-04-04T21:00:45.318505"
+            },
+            {
+                "type": "draft_start",
+                "message": "The draft has started! It's your turn to pick.",
+                "timestamp": "2025-04-04T21:00:57.552907"
+            }
+        ],
+        "players_player_ratings": []
+    },
+    {
+        "id": "d4b0385a-edc1-4116-9fae-45dffe035280",
+        "name": "Alicia",
+        "position": "MID",
+        "skill_rating": 7.21,
+        "age": 34,
+        "available": true,
+        "role": "player",
+        "preferred_foot": "Left",
+        "preferred_days": "Weekends",
+        "preferred_times": "Evening",
+        "preferred_locations": "Local Pitch",
+        "access_code": "df34e8a8",
+        "is_captain": false,
+        "match_history": [],
+        "ratings_received": [],
+        "notifications": [],
+        "inbox": [],
+        "players_player_ratings": []
+    },
+    {
+        "id": "7ef7d36a-26d9-404d-8e31-c3e5a74254e4",
+        "name": "Tammy",
+        "position": "MID",
+        "skill_rating": 5.13,
+        "age": 26,
+        "available": true,
+        "role": "player",
+        "preferred_foot": "Right",
+        "preferred_days": "Weekends",
+        "preferred_times": "Evening",
+        "preferred_locations": "Local Pitch",
+        "access_code": "870e2ea9",
+        "is_captain": false,
+        "match_history": [],
+        "ratings_received": [],
+        "notifications": [],
+        "inbox": [],
+        "players_player_ratings": []
+    },
+    {
+        "id": "38b44565-c5f7-4332-ab49-1b26b60c106c",
+        "name": "Peter",
+        "position": "FWD",
+        "skill_rating": 6.45,
+        "age": 34,
+        "available": true,
+        "role": "player",
+        "preferred_foot": "Left",
+        "preferred_days": "Weekends",
+        "preferred_times": "Evening",
+        "preferred_locations": "Local Pitch",
+        "access_code": "5882d06c",
+        "is_captain": false,
+        "match_history": [],
+        "ratings_received": [],
+        "notifications": [],
+        "inbox": [],
+        "players_player_ratings": []
+    },
+    {
+        "id": "c2e2953a-3137-42cf-ae4c-332263439f0c",
+        "name": "Steven",
+        "position": "FWD",
+        "skill_rating": 7.57,
+        "age": 21,
+        "available": true,
+        "role": "player",
+        "preferred_foot": "Right",
+        "preferred_days": "Weekends",
+        "preferred_times": "Evening",
+        "preferred_locations": "Local Pitch",
+        "access_code": "cbfce416",
+        "is_captain": false,
+        "match_history": [],
+        "ratings_received": [],
+        "notifications": [],
+        "inbox": [
+            {
+                "type": "captain_assignment",
+                "message": "You've been assigned as a captain! Access the draft via your player portal when it opens.",
+                "timestamp": "2025-04-04T23:10:21.868976"
+            },
+            {
+                "type": "captain_assignment",
+                "message": "You've been assigned as a captain! Access the draft via your player portal when it opens.",
+                "timestamp": "2025-04-04T23:37:00.837190"
+            },
+            {
+                "type": "captain_assignment",
+                "message": "You've been assigned as a captain! Access the draft via your player portal when it opens.",
+                "timestamp": "2025-04-04T23:41:30.038627"
+            }
+        ],
+        "players_player_ratings": []
+    },
+    {
+        "id": "074803ee-a200-48d8-8bc2-036eea93c894",
+        "name": "Thomas",
+        "position": "FWD",
+        "skill_rating": 6.68,
+        "age": 33,
+        "available": true,
+        "role": "player",
+        "preferred_foot": "Right",
+        "preferred_days": "Weekends",
+        "preferred_times": "Evening",
+        "preferred_locations": "Local Pitch",
+        "access_code": "4515cf26",
+        "is_captain": false,
+        "match_history": [],
+        "ratings_received": [],
+        "notifications": [],
+        "inbox": [],
+        "players_player_ratings": []
+    },
+    {
+        "id": "b8b29e11-21a7-4857-8985-45791affe5ac",
+        "name": "Eric",
+        "position": "FWD",
+        "skill_rating": 5.97,
+        "age": 19,
+        "available": true,
+        "role": "player",
+        "preferred_foot": "Left",
+        "preferred_days": "Weekends",
+        "preferred_times": "Evening",
+        "preferred_locations": "Local Pitch",
+        "access_code": "02cdc963",
+        "is_captain": false,
+        "match_history": [],
+        "ratings_received": [],
+        "notifications": [],
+        "inbox": [],
+        "players_player_ratings": []
+    }
+]

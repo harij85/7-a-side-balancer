@@ -38,21 +38,34 @@
                      <h5 class="card-title">Admin Actions</h5>
                       {% if is_admin %}
                          <div class="d-grid gap-2">
+                            <a href="{{ url_for('admin.generate_invite') }}" class="btn btn-outline-primary w-100 mb-3">
+                            <i class="bi bi-link-45deg"></i> Generate Invite Link
+                            </a>
                             <a href="{{ url_for('admin.add_player') }}" class="btn btn-primary"><i class="bi bi-person-plus-fill"></i> Add Player</a>
                             <a href="{{ url_for('admin.create_match') }}" class="btn btn-success"><i class="bi bi-calendar-plus"></i> Create Match</a>
                             <a href="{{ url_for('admin.generate_teams') }}" class="btn btn-info"><i class="bi bi-people-fill"></i> Generate Balanced Teams</a>
                             <a href="{{ url_for('home_bp.view_players') }}" class="btn btn-outline-secondary"><i class="bi bi-person-lines-fill"></i> View/Manage Players</a>
                             <a href="{{ url_for('admin.admin_view_ratings') }}" class="btn btn-outline-secondary"><i class="bi bi-star-half"></i> View Player Ratings</a>
                             {# Draft Admin Actions #}
-                             {% if not draft_state or not draft_state.complete %}
-                                 <form action="{{ url_for('draft_bp.start_draft') }}" method="POST" class="d-grid">
-                                      <button type="submit" class="btn btn-warning" {% if not can_assign_more %} {# Disable if < 2 captains #}
-                                         title="Requires exactly 2 captains to be assigned."
-                                      {% endif %}>
-                                         <i class="bi bi-play-circle-fill"></i> Start Captain Draft
-                                      </button>
-                                 </form>
-                             {% endif %}
+                            {% if is_admin %}
+                            {% if draft_ready_match %}
+                              <form method="POST" action="{{ url_for('admin.create_draft', match_id=draft_ready_match.match_id) }}">
+                                  <button class="btn btn-success mb-3">
+                                      <i class="bi bi-play-circle"></i> Start Draft for Match on {{ draft_ready_match.date }} @ {{ draft_ready_match.start_time }}
+                                  </button>
+                              </form>
+                            {% elif is_sandbox_draft_possible and sandbox_enabled %}
+                              <div class="alert alert-info">
+                                  <strong>Note:</strong> 2 captains have been selected outside of a match.
+                              </div>
+                              <form method="POST" action="{{ url_for('admin.create_draft', match_id='sandbox') }}">
+                                  <button class="btn btn-outline-secondary mb-3">
+                                      <i class="bi bi-tools"></i> Start Sandbox Draft (no match)
+                                  </button>
+                              </form>
+                            {% endif %}
+                          {% endif %}
+                          
                              {% if draft_state and 'captain1_id' in draft_state %}
                                  <a href="{{ url_for('draft_bp.draft_observer_view') }}" class="btn btn-outline-info"><i class="bi bi-eye-fill"></i> View Live Draft</a>
                              {% endif %}

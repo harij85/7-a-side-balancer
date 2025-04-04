@@ -14,6 +14,7 @@ def admin_login():
         if password == os.getenv('ADMIN_PASSWORD'):
             session.clear()
             session['is_admin'] = True
+            session['is_sudo_admin'] = True
             return redirect(url_for('home_bp.index'))
         else:
             return render_template('admin_login.html', error="Invalid password")

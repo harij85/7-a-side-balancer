@@ -19,9 +19,18 @@
         <li class="nav-item">
           <a class="nav-link {% if request.endpoint == 'home_bp.index' %}active{% endif %}" href="{{ url_for('home_bp.index') }}">Dashboard</a>
         </li>
-         <li class="nav-item">
-           <a class="nav-link {% if request.endpoint == 'home_bp.view_players' %}active{% endif %}" href="{{ url_for('home_bp.view_players') }}">Players</a>
+        {% if player or is_admin %}
+        <li class="nav-item">
+          <a class="nav-link {% if request.endpoint == 'home_bp.view_players' %}active{% endif %}" href="{{ url_for('home_bp.view_players') }}">Players</a>
         </li>
+      {% endif %}
+      {% if is_admin %}
+      <li class="nav-item">
+        <a class="nav-link {% if request.endpoint.startswith('settings_bp') %}active{% endif %}" href="{{ url_for('settings_bp.settings_home') }}">
+          <i class="bi bi-gear-fill"></i> Settings
+        </a>
+      </li>
+      {% endif %}
       </ul>
 
       {# Right-aligned items #}

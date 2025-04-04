@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+  <h3 class="mb-3">Join Team</h3>
+  <p>You're joining a team using invite code: <strong>{{ invite_code }}</strong></p>
+
+  <form method="POST">
+    <div class="mb-3">
+      <label class="form-label">Full Name</label>
+      <input name="name" type="text" class="form-control" required>
+    </div>
+    <div class="mb-3">
+      <label class="form-label">Preferred Position</label>
+      <select name="position" class="form-select" required>
+        <option value="DEF">Defender</option>
+        <option value="MID">Midfielder</option>
+        <option value="ATT">Attacker</option>
+        <option value="GK">Goalkeeper</option>
+      </select>
+    </div>
+    <div class="mb-3">
+      <label class="form-label">Preferred Foot</label>
+      <select name="preferred_foot" class="form-select">
+        <option value="">--</option>
+        <option value="Left">Left</option>
+        <option value="Right">Right</option>
+        <option value="Both">Both</option>
+      </select>
+    </div>
+    <div class="mb-3">
+      <label class="form-label">Preferred Days</label>
+      <input name="preferred_days" type="text" class="form-control" placeholder="e.g. Tuesday, Saturday">
+    </div>
+    <div class="mb-3">
+      <label class="form-label">Preferred Times</label>
+      <input name="preferred_times" type="text" class="form-control" placeholder="e.g. Evenings, 7–9pm">
+    </div>
+    <div class="mb-3">
+      <label class="form-label">Preferred Locations</label>
+      <input name="preferred_locations" type="text" class="form-control" placeholder="e.g. Shoreditch, Stratford">
+    </div>
+
+    <button type="submit" class="btn btn-success">Join Team</button>
+  </form>
+</div>
+{% endblock %}

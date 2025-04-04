@@ -141,9 +141,9 @@
                         {% if draft_context.is_my_turn %}
                             <div class="alert alert-success"><i class="bi bi-arrow-right-circle-fill"></i> It's your turn to pick!</div>
                              {# Pick Form #}
-                            <form action="{{ url_for('draft_bp.draft_pick', player_id='__PLAYERID__') }}" method="POST" id="draftPickForm">
+                             <form action="{{ url_for('draft_bp.draft_pick') }}" method="POST" id="draftPickForm">
                                 <div class="input-group mb-3">
-                                    <select name="player_to_pick" id="playerSelect" class="form-select" required>
+                                    <select name="player_id" id="playerSelect" class="form-select" required>
                                         <option value="" disabled selected>-- Choose player to draft --</option>
                                         {% for p in draft_context.remaining %}
                                             <option value="{{ p.id }}">{{ p.name }} ({{ p.position }}) - Rating: {{ p.skill_rating }}</option>
@@ -151,24 +151,26 @@
                                     </select>
                                     <button type="submit" class="btn btn-primary">Draft Player</button>
                                 </div>
-                             </form>
+                            </form>
+                            
                              <script>
-                                // Update form action dynamically based on selection
                                 const draftForm = document.getElementById('draftPickForm');
                                 const playerSelect = document.getElementById('playerSelect');
                                 if (draftForm && playerSelect) {
                                     draftForm.addEventListener('submit', function (e) {
                                         const selectedId = playerSelect.value;
                                         if (selectedId) {
-                                            // Replace placeholder in action URL
-                                            draftForm.action = draftForm.action.replace('__PLAYERID__', selectedId);
+                                            // Use base URL and replace placeholder safely
+                                            const baseUrl = draftForm.getAttribute('data-base-url');
+                                            draftForm.action = baseUrl.replace('__PLAYERID__', selectedId);
                                         } else {
-                                            e.preventDefault(); // Prevent submission if no player selected
+                                            e.preventDefault();
                                             alert('Please select a player to draft.');
                                         }
                                     });
                                 }
-                             </script>
+                            </script>
+                            
 
                         {% else %}
                             <div class="alert alert-warning"><i class="bi bi-hourglass-split"></i> Waiting for {{ draft_context.turn.name if draft_context.turn else 'other captain' }} to pick...</div>

@@ -114,3 +114,16 @@ def get_player(players, player_id):
 def is_public_visibility_enabled():
     config = load_config()
     return config.get('public_visibility_enabled', False)
+
+def get_config_value(key, default=None):
+    #returns single config value with optional fallback
+    config = load_config()
+    return config.get(key, default)
+
+def set_config_value(key, value):
+    #sets and saves a single config key/value.
+    config = load_config()
+    config[key] = value
+    save_config(config)
+    
+    

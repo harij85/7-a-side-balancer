@@ -8,6 +8,9 @@ from backend.routes.draft import draft_bp  # Consolidated draft logic here
 from backend.routes.auth import auth_bp
 from backend.routes.home import home_bp
 from backend.utils.data_manager import ensure_data_dir_exists
+from backend.routes.invite import invite_bp
+from backend.routes.settings import settings_bp
+
 
 load_dotenv()
 
@@ -33,6 +36,9 @@ def create_app():
     app.register_blueprint(draft_bp) # Single draft blueprint
     app.register_blueprint(auth_bp)
     app.register_blueprint(home_bp)
+    app.register_blueprint(invite_bp)
+    app.register_blueprint(settings_bp)
+
     # Removed captains_bp registration
 
     # You might want to add context processors here later

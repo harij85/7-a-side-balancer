@@ -2,6 +2,7 @@
 import uuid
 from backend.models.performance import update_skill_rating, recent_form, PerformanceLog
 
+
 class Player:
     def __init__(
         self,
@@ -12,6 +13,10 @@ class Player:
         player_id=None,
         available=True,
         role='player',
+        preferred_foot=None,
+        preferred_days=None,
+        preferred_times=None,
+        preferred_locations=None,
         is_captain=False,
         match_history=None,
         access_code=None,
@@ -19,6 +24,7 @@ class Player:
         notifications=None,
         inbox=None, # Explicitly added inbox
         players_player_ratings=None # Explicitly added players_player_ratings
+        
     ):
         self.id = player_id or str(uuid.uuid4())
         self.name = name
@@ -27,6 +33,10 @@ class Player:
         self.age = age # Store age
         self.available = available
         self.role = role
+        self.preferred_foot = preferred_foot
+        self.preferred_days = preferred_days
+        self.preferred_times = preferred_times
+        self.preferred_locations = preferred_locations
         self.access_code = access_code or str(uuid.uuid4())[:6].upper() # Ensure unique code is generated if None
         self.is_captain = is_captain
         self.match_history = match_history or []
@@ -95,6 +105,10 @@ class Player:
             'age': self.age, # Added age
             'available': self.available,
             'role': self.role,
+            'preferred_foot': self.preferred_foot,
+            'preferred_days': self.preferred_days,
+            'preferred_times': self.preferred_times,
+            'preferred_locations': self.preferred_locations,
             'access_code': self.access_code,
             'is_captain': self.is_captain,
             'match_history': [p.to_dict() for p in self.match_history],
@@ -118,6 +132,10 @@ class Player:
             player_id=data.get('id'), # Use get for id
             available=data.get('available', True),
             role=data.get('role', 'player'),
+            preferred_foot=data.get('preferred_foot'),
+            preferred_days=data.get('preferred_days'),
+            preferred_times=data.get('preferred_times'),
+            preferred_locations=data.get('preferred_locations'),
             access_code=data.get('access_code'),
             is_captain=data.get('is_captain', False),
             match_history=match_history,

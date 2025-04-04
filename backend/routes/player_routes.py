@@ -4,6 +4,7 @@ from backend.utils.match_manager import load_matches, save_matches, get_match_by
 from backend.utils.data_manager import load_players, save_players, generate_unique_code, load_draft_state, get_player # Import helper
 from backend.models.player import Player, PerformanceLog # Import models
 from backend.utils.draft_timer import get_draft_window, is_draft_window_open # Import timer utils
+#from backend.utils.draft_helpers import get_draft_context_for_player
 
 player_bp = Blueprint('player_bp', __name__)
 
@@ -53,25 +54,33 @@ def player_page(player_id):
     # --- Draft Logic for Captains ---
     draft_state = load_draft_state()
     draft_context = {}
-    is_draft_active = draft_state and not draft_state.get('complete', False)
+    #is_draft_active = draft_state and not draft_state.get('complete', False)
     show_draft_panel = False # Default to false
+    
+    matches = load_matches()
+    player_matches = sorted(
+        [m for m in matches if player_id in m.players],
+        key=lambda m: (m.date, m.start_time),
+        reverse=True
+    )
+    latest_match = player_matches[0] if player_matches else None
 
     if player.is_captain and draft_state and 'captain1_id' in draft_state:
+        draft_match = get_match_by_id(draft_state['match_id'])
+        draft_belongs_to_latest_match = draft_match and draft_match.match_id == draft_state['match_id']
         is_participant_captain = player_id in [draft_state.get('captain1_id'), draft_state.get('captain2_id')]
 
-        if is_participant_captain:
-            # Prepare context regardless of draft completion for viewing teams/status
+        if is_participant_captain and draft_belongs_to_latest_match:
             captain1 = get_player(players, draft_state['captain1_id'])
             captain2 = get_player(players, draft_state['captain2_id'])
-            turn_player = get_player(players, draft_state.get('turn')) # May be None
+            turn_player = get_player(players, draft_state.get('turn'))
 
             if not captain1 or not captain2:
-                 # Handle cases where captain data might be missing (e.g., deleted player)
-                 flash("Error loading draft captain data.", "warning")
-                 draft_context = {"error": True}
+                flash("Error loading draft captain data.", "warning")
+                draft_context = {"error": True}
             else:
                 draft_context = {
-                    'captain_id': player_id, # ID of the captain viewing the page
+                    'captain_id': player_id,
                     'this_captain': player,
                     'captain1': captain1,
                     'captain2': captain2,
@@ -82,9 +91,9 @@ def player_page(player_id):
                     'is_my_turn': draft_state.get('turn') == player_id,
                     'is_complete': draft_state.get('complete', False),
                     'error': False
-                }
-                # Show the panel only if the draft is active (not complete)
-                show_draft_panel = not draft_context['is_complete']
+            }
+            show_draft_panel = not draft_context['is_complete']
+
 
 
     # --- Other Data for Portal ---
