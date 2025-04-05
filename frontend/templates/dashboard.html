@@ -50,7 +50,7 @@
           {% if player_id and player %}
             <p>Welcome back, {{ player.name }}!</p>
             <div class="d-grid gap-2">
-              <a href="{{ url_for('player_bp.player_page', player_id=player_id) }}" class="btn btn-primary">My Portal</a>
+              <a href="{{ url_for('player_bp.player_page', player_id=player_id) }}" class="btn btn-primary">My Locker</a>
               <a href="{{ url_for('player_bp.log_performance') }}" class="btn btn-success">Log Performance</a>
               <a href="{{ url_for('home_bp.view_players') }}" class="btn btn-info">View Players</a>
               <a href="{{ url_for('player_bp.player_inbox') }}" class="btn btn-outline-secondary">Inbox</a>
