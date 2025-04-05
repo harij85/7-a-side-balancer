@@ -12,7 +12,7 @@
         "preferred_times": "Evening",
         "preferred_locations": "Local Pitch",
         "access_code": "bfc20884",
-        "is_captain": true,
+        "is_captain": false,
         "match_history": [],
         "ratings_received": [],
         "notifications": [
@@ -84,7 +84,7 @@
         "preferred_times": "Evening",
         "preferred_locations": "Local Pitch",
         "access_code": "a79f81ee",
-        "is_captain": true,
+        "is_captain": false,
         "match_history": [],
         "ratings_received": [],
         "notifications": [

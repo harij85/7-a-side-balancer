@@ -1,6 +1,6 @@
 # backend/routes/home.py
 from flask import Blueprint, render_template, session, request, redirect, url_for, flash
-from backend.utils.data_manager import load_players, load_draft_state, get_player, is_public_visibility_enabled  # Import helper
+from backend.utils.data_manager import load_players, load_draft_state, get_player, is_public_visibility_enabled, load_config  # Import helper
 from backend.utils.draft_timer import get_draft_window, is_draft_window_open
 from backend.models.player import Player # Import Player model
 from backend.utils.match_manager import load_matches
@@ -12,6 +12,7 @@ home_bp = Blueprint('home_bp', __name__)
 @home_bp.route('/')
 def index():
     """Renders the main dashboard/homepage."""
+    config = load_config()
     is_admin = session.get('is_admin', False)
     player_id = session.get('player_id')
 
@@ -60,7 +61,9 @@ def index():
         next_draft_start=draft_start, # Pass datetime object for display
         next_draft_end=draft_end,
         draft_ready_match=draft_ready_match,
-        is_sandbox_draft_possible=is_sandbox_draft_possible
+        is_sandbox_draft_possible=is_sandbox_draft_possible,
+        show_public_draft=config.get('public_draft_view_enabled', False),
+        show_public_players=config.get('public_player_view_enabled', False)
     )
 
 @home_bp.route('/players')  # Changed route to '/players' for clarity

@@ -1,7 +1,7 @@
 # backend/app_factory.py
 import os
 from dotenv import load_dotenv
-from flask import Flask
+from flask import Flask, render_template
 from backend.routes.player_routes import player_bp
 from backend.routes.admin import admin_bp
 from backend.routes.draft import draft_bp  # Consolidated draft logic here
@@ -10,6 +10,7 @@ from backend.routes.home import home_bp
 from backend.utils.data_manager import ensure_data_dir_exists
 from backend.routes.invite import invite_bp
 from backend.routes.settings import settings_bp
+from backend.routes.api import api_bp
 
 
 load_dotenv()
@@ -38,6 +39,7 @@ def create_app():
     app.register_blueprint(home_bp)
     app.register_blueprint(invite_bp)
     app.register_blueprint(settings_bp)
+    app.register_blueprint(api_bp)
 
     # Removed captains_bp registration
 
@@ -48,6 +50,9 @@ def create_app():
     #     from flask import session
     #     return dict(is_admin=session.get('is_admin', False),
     #                 player_id=session.get('player_id'))
-
+    
+    @app.errorhandler(404)
+    def not_found_error(error):
+       return render_template('404.html'), 404
 
     return app

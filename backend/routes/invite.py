@@ -47,3 +47,17 @@ def join_team(code):
         return redirect(url_for('auth.player_login'))
     
     return render_template('join_team.html', invite_code=code)
+
+@invite_bp.route('/join_team')
+def join_team_landing():
+    return render_template('join_landing.html')
+
+@invite_bp.route('/join_redirect')
+def join_redirect():
+    code = request.args.get('code', '').strip()
+    if not code:
+        flash("Please enter a valid invite code.", "warning")
+        return redirect(url_for('invite_bp.join_team_landing'))
+    
+    return redirect(url_for('invite_bp.join_team', code=code))
+

@@ -1,4 +1,7 @@
 {
   "ratings_enabled": true,
-  "public_player_visibility": false
+  "public_player_visibility": false,
+  "public_draft_view_enabled": false,
+  "public_player_view_enabled": false
+
 }

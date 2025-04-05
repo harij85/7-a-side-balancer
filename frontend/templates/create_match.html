@@ -1,7 +1,8 @@
 {% extends "base.html" %}
 {% block content %}
-<div class="container mt-4">
-  <h2>Create New Match</h2>
+<div class="container mt-5">
+  <h2 class="mb-4">Create New Match</h2>
+
   <form method="POST">
     <div class="mb-3">
       <label for="date" class="form-label">Match Date</label>
@@ -23,18 +24,17 @@
       <input type="text" class="form-control" id="location" name="location" placeholder="e.g. Powerleague Shoreditch" required>
     </div>
 
-    <div class="row">
-      <div class="col-md-6 mb-3">
-        <label for="num_teams" class="form-label">Number of Teams</label>
-        <input type="number" class="form-control" id="num_teams" name="num_teams" value="2" min="2" required>
-      </div>
-      <div class="col-md-6 mb-3">
-        <label for="players_per_team" class="form-label">Players per Team</label>
-        <input type="number" class="form-control" id="players_per_team" name="players_per_team" value="7" min="3" required>
-      </div>
+    <div class="mb-3">
+      <label for="num_teams" class="form-label">Number of Teams</label>
+      <input type="number" class="form-control" id="num_teams" name="num_teams" value="2" min="2" required>
     </div>
 
     <div class="mb-3">
+      <label for="players_per_team" class="form-label">Players per Team</label>
+      <input type="number" class="form-control" id="players_per_team" name="players_per_team" value="7" min="3" required>
+    </div>
+
+    <div class="mb-4">
       <label for="selection_method" class="form-label">Team Selection Method</label>
       <select class="form-select" name="selection_method" id="selection_method" required>
         <option value="draft">Captain Draft</option>
@@ -44,6 +44,10 @@
 
     <button type="submit" class="btn btn-primary">Create Match</button>
   </form>
+
+  <div class="mt-4">
+    <a href="{{ url_for('home_bp.index') }}" class="btn btn-outline-secondary">← Back to Dashboard</a>
+  </div>
 
   {% with messages = get_flashed_messages(with_categories=true) %}
     {% if messages %}

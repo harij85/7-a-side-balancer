@@ -1,0 +1,108 @@
+{% if is_admin or player_id %}
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+        <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+          {{ message }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+
+  <div class="row mb-4">
+    <div class="col-md-6 mb-3">
+      <div class="card h-100">
+        <div class="card-body">
+          <h5 class="card-title">Admin Actions</h5>
+          {% if is_admin %}
+            <div class="d-grid gap-2">
+              <a href="{{ url_for('admin.generate_invite') }}" class="btn btn-outline-primary">Generate Invite</a>
+              <a href="{{ url_for('admin.add_player') }}" class="btn btn-primary">Add Player</a>
+              <a href="{{ url_for('admin.create_match') }}" class="btn btn-success">Create Match</a>
+              <a href="{{ url_for('admin.admin_view_ratings') }}" class="btn btn-outline-secondary">Player Ratings</a>
+              {% if draft_ready_match %}
+                <form method="POST" action="{{ url_for('admin.create_draft', match_id=draft_ready_match.match_id) }}">
+                  <button class="btn btn-success">Start Draft for {{ draft_ready_match.date }} @ {{ draft_ready_match.start_time }}</button>
+                </form>
+              {% elif is_sandbox_draft_possible and sandbox_enabled %}
+                <form method="POST" action="{{ url_for('admin.create_draft', match_id='sandbox') }}">
+                  <button class="btn btn-outline-secondary">Start Sandbox Draft</button>
+                </form>
+              {% endif %}
+              {% if draft_state and 'captain1_id' in draft_state %}
+                <a href="{{ url_for('draft_bp.draft_observer_view') }}" class="btn btn-outline-info">View Draft</a>
+              {% endif %}
+              <a href="{{ url_for('auth.admin_logout') }}" class="btn btn-outline-danger">Logout Admin</a>
+            </div>
+          {% else %}
+            <p class="text-muted">Log in as Admin to see tools.</p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-6 mb-3">
+      <div class="card h-100">
+        <div class="card-body">
+          <h5 class="card-title">Player Actions</h5>
+          {% if player_id and player %}
+            <p>Welcome back, {{ player.name }}!</p>
+            <div class="d-grid gap-2">
+              <a href="{{ url_for('player_bp.player_page', player_id=player_id) }}" class="btn btn-primary">My Portal</a>
+              <a href="{{ url_for('player_bp.log_performance') }}" class="btn btn-success">Log Performance</a>
+              <a href="{{ url_for('home_bp.view_players') }}" class="btn btn-info">View Players</a>
+              <a href="{{ url_for('player_bp.player_inbox') }}" class="btn btn-outline-secondary">Inbox</a>
+              <form action="{{ url_for('player_bp.toggle_availability') }}" method="POST">
+                <button type="submit" class="btn btn-outline-warning">
+                  {% if player.available %}Mark Unavailable{% else %}Mark Available{% endif %}
+                </button>
+              </form>
+              <a href="{{ url_for('auth.player_logout') }}" class="btn btn-outline-danger">Logout</a>
+            </div>
+          {% else %}
+            <p class="text-muted">Login as player to access dashboard.</p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card mb-4">
+    <div class="card-header">Draft Status</div>
+    <div class="card-body">
+      {% if draft_state and draft_state.complete %}
+        <p class="text-success">Draft complete.</p>
+        <a href="{{ url_for('draft_bp.draft_observer_view') }}" class="btn btn-sm btn-outline-info">View Final Teams</a>
+      {% elif draft_state and 'captain1_id' in draft_state %}
+        <p class="text-warning">Draft in progress...</p>
+        <a href="{{ url_for('draft_bp.draft_observer_view') }}" class="btn btn-sm btn-outline-info">Observe Draft</a>
+      {% else %}
+        <p class="text-muted">No active draft.</p>
+      {% endif %}
+      <hr>
+      <p><strong>Next Draft Window:</strong> {{ next_draft_start.strftime('%a, %b %d %H:%M') }} to {{ next_draft_end.strftime('%a, %b %d %H:%M') }}</p>
+      <p><strong>Next Draft Opens In:</strong>
+        <span id="nextDraftCountdown" class="fw-bold text-info" data-start="{{ draft_start }}" data-end="{{ draft_end }}">
+          Loading countdown...
+        </span>
+      </p>
+    </div>
+
+    {% if is_admin %}
+      <h3 class="mb-3">Player Management Overview</h3>
+      <p><a href="{{ url_for('home_bp.view_players') }}">Go to full filterable player list &raquo;</a></p>
+
+      <div id="playerList" class="list-group mb-4"></div>
+      <div id="loading" class="text-center my-3" style="display: none;">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Loading...</span>
+        </div>
+      </div>
+
+      <script type="module" src="{{ url_for('static', filename='js/init_admin_scroll.js') }}"></script>
+
+    {% endif %}
+  </div>
+{% endif %}
