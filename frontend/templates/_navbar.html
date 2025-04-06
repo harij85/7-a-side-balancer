@@ -4,7 +4,7 @@
   <div class="container-fluid">
     {# Brand #}
     <a class="navbar-brand" href="{{ url_for('home_bp.index') }}">
-      <i class="bi bi-shield-shaded"></i> Locker Room
+      <i class="bi bi-shield-shaded"></i> TeamHuddle
     </a>
 
     {# Navbar Toggler for small screens #}
@@ -54,7 +54,7 @@
                     <i class="bi bi-person-circle"></i> {{ player.name }}
                 </button>
                 <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="playerDropdown">
-                    <li><a class="dropdown-item" href="{{ url_for('player_bp.player_page', player_id=player.id) }}"><i class="bi bi-speedometer2"></i> My Portal</a></li>
+                    <li><a class="dropdown-item" href="{{ url_for('player_bp.player_page', player_id=player.id) }}"><i class="bi bi-speedometer2"></i> My Locker</a></li>
                      <li><a class="dropdown-item" href="{{ url_for('player_bp.player_inbox') }}"><i class="bi bi-inbox-fill"></i> View Inbox Page</a></li>
                     <li><hr class="dropdown-divider"></li>
                     <li>
