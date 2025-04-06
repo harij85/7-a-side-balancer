@@ -12,16 +12,10 @@
         "preferred_times": "Evening",
         "preferred_locations": "Local Pitch",
         "access_code": "bfc20884",
-        "is_captain": false,
+        "is_captain": true,
         "match_history": [],
         "ratings_received": [],
-        "notifications": [
-            {
-                "type": "captain_assignment",
-                "message": "You've been assigned as a captain! Access the draft via your player portal when it opens.",
-                "timestamp": "2025-04-05T00:48:46.493427"
-            }
-        ],
+        "notifications": [],
         "inbox": [
             {
                 "type": "captain_assignment",
@@ -67,6 +61,16 @@
                 "type": "captain_assignment",
                 "message": "You've been assigned as a captain! Access the draft via your player portal when it opens.",
                 "timestamp": "2025-04-05T00:48:46.493427"
+            },
+            {
+                "type": "captain_assignment",
+                "message": "You've been assigned as a captain! Access the draft via your player portal when it opens.",
+                "timestamp": "2025-04-06T01:52:00.776250"
+            },
+            {
+                "type": "captain_assignment",
+                "message": "You've been assigned as a captain! Access the draft via your player portal when it opens.",
+                "timestamp": "2025-04-06T02:04:45.645301"
             }
         ],
         "players_player_ratings": []
@@ -84,14 +88,19 @@
         "preferred_times": "Evening",
         "preferred_locations": "Local Pitch",
         "access_code": "a79f81ee",
-        "is_captain": false,
+        "is_captain": true,
         "match_history": [],
         "ratings_received": [],
         "notifications": [
             {
                 "type": "captain_assignment",
                 "message": "You've been assigned as a captain! Access the draft via your player portal when it opens.",
-                "timestamp": "2025-04-05T00:48:46.493462"
+                "timestamp": "2025-04-06T02:04:45.645319"
+            },
+            {
+                "type": "draft_turn",
+                "message": "It's your turn to pick in the draft!",
+                "timestamp": "2025-04-06T02:06:32.564885"
             }
         ],
         "inbox": [
@@ -134,6 +143,26 @@
                 "type": "captain_assignment",
                 "message": "You've been assigned as a captain! Access the draft via your player portal when it opens.",
                 "timestamp": "2025-04-05T00:48:46.493462"
+            },
+            {
+                "type": "captain_assignment",
+                "message": "You've been assigned as a captain! Access the draft via your player portal when it opens.",
+                "timestamp": "2025-04-06T01:52:00.776310"
+            },
+            {
+                "type": "draft_turn",
+                "message": "It's your turn to pick in the draft!",
+                "timestamp": "2025-04-06T01:58:30.593588"
+            },
+            {
+                "type": "captain_assignment",
+                "message": "You've been assigned as a captain! Access the draft via your player portal when it opens.",
+                "timestamp": "2025-04-06T02:04:45.645319"
+            },
+            {
+                "type": "draft_turn",
+                "message": "It's your turn to pick in the draft!",
+                "timestamp": "2025-04-06T02:06:32.564885"
             }
         ],
         "players_player_ratings": []
@@ -155,7 +184,18 @@
         "match_history": [],
         "ratings_received": [],
         "notifications": [],
-        "inbox": [],
+        "inbox": [
+            {
+                "type": "draft_pick",
+                "message": "Congratulations! You have been chosen by Captain Antoniofor the match on 2025-04-06 at Powerleague Vauxhall.Please arrive at least 15 minutes before the 13:00 kick-off!",
+                "timestamp": "2025-04-06T01:58:30.593484"
+            },
+            {
+                "type": "draft_pick",
+                "message": "Congratulations! You have been chosen by Captain Antonio for the match on 2025-04-06 at Powerleague Vauxhall. Please arrive at least 15 minutes before the 13:00 kick-off!",
+                "timestamp": "2025-04-06T02:06:32.564804"
+            }
+        ],
         "players_player_ratings": []
     },
     {

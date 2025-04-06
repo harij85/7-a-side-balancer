@@ -4,10 +4,11 @@
 from flask import Blueprint, render_template, redirect, url_for, request, session, flash
 from datetime import datetime, timedelta
 from backend.utils.data_manager import (
-    load_players, save_players, load_draft_state, save_draft_state
+    load_players, save_players, load_draft_state, save_draft_state, load_matches_data
 )
 from backend.utils.draft_timer import get_draft_window # Use shared function
 from backend.models.player import Player # Import Player model
+from backend.utils.match_manager import get_current_draft_match
 
 draft_bp = Blueprint('draft_bp', __name__)
 
@@ -178,6 +179,27 @@ def draft_pick():
     elif current_turn_captain_id == state['captain2_id']:
         state['team2_ids'].append(player_id)
         next_turn_captain_id = state['captain1_id']
+        
+    match = get_current_draft_match()
+        
+    if match:
+        picked_player.add_notification({
+            "type": "draft_pick",
+            "message": (
+                f"Congratulations! You have been chosen by Captain {captain.name} " 
+                f"for the match on {match.date} at {match.location}. "
+                f"Please arrive at least 15 minutes before the {match.start_time} kick-off!"
+            ),
+            "timestamp": datetime.now().isoformat()
+        })
+            
+        picked_player.upcoming_match = {
+            "match_id": match.match_id,
+            "date": match.date,
+            "start_time": match.start_time,
+            "location": match.location
+            }
+        
     else:
         # Should not happen if validation is correct
         flash("Internal error: Invalid turn state.", "danger")
@@ -215,7 +237,7 @@ def draft_pick():
         if next_captain:
              turn_message = {
                 "type": "draft_turn",
-                "message": f"It's your turn to pick in the draft!",
+                "message": "It's your turn to pick in the draft!",
                 "timestamp": datetime.now().isoformat()
              }
              next_captain.add_notification(turn_message)
